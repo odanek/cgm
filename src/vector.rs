@@ -42,6 +42,10 @@ macro_rules! impl_vector {
                 $VecN { $($field: $field),+ }
             }
         }
+
+        impl<S: Zero> Zero for $VecN<S> {
+            const ZERO: $VecN<S> = $VecN { $($field: S::ZERO),+ };
+        }
     }
 }
 
