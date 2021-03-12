@@ -1,4 +1,4 @@
-use std::ops;
+use std::ops::{Add, Sub};
 
 use crate::{Rad, num::{Float, Num, One, Zero}};
 
@@ -34,6 +34,48 @@ pub struct Vec4<S> {
     pub w: S,
 }
 
+macro_rules! impl_operator {
+    (<$S:ident: $Constraint:ident>, $Op:ident<$Rhs:ty>, $Lhs:ty, {
+        fn $op:ident($lhs: ident, $rhs: ident) -> $Out:ty { $body:expr }
+    }) => {
+        impl<$S: $Constraint> $Op<$Rhs> for $Lhs {
+            type Output = $Out;
+        
+            fn $op(self, other: $Rhs) -> Self::Output {
+                let ($lhs, $rhs) = (self, other);
+                $body
+            }
+        }
+        
+        impl<'a, $S: $Constraint> $Op<$Rhs> for &'a $Lhs {
+            type Output = $Out;
+        
+            fn $op(self, other: $Rhs) -> Self::Output {
+                let ($lhs, $rhs) = (self, other);
+                $body
+            }
+        }
+
+        impl<'a, $S: $Constraint> $Op<&'a $Rhs> for $Lhs {
+            type Output = $Out;
+        
+            fn $op(self, other: &'a $Rhs) -> Self::Output {
+                let ($lhs, $rhs) = (self, other);
+                $body
+            }
+        }
+        
+        impl<'a, 'b, $S: $Constraint> $Op<&'a $Rhs> for &'b $Lhs {
+            type Output = $Out;
+        
+            fn $op(self, other: &'a $Rhs) -> Self::Output {
+                let ($lhs, $rhs) = (self, other);
+                $body
+            }
+        }
+    }
+}
+
 macro_rules! impl_vector {
     ($VecN:ident { $($field:ident),+ }, $n:expr) => {
         impl<S> $VecN<S> {
@@ -46,6 +88,13 @@ macro_rules! impl_vector {
         impl<S: Zero> Zero for $VecN<S> {
             const ZERO: $VecN<S> = $VecN { $($field: S::ZERO),+ };
         }
+
+        impl_operator!(<S: Num>, Add<$VecN<S>>, $VecN<S>, { 
+            fn add(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field + rhs.$field),+ } }
+        });
+        impl_operator!(<S: Num>, Sub<$VecN<S>>, $VecN<S>, { 
+            fn sub(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field - rhs.$field),+ } }
+        });
     }
 }
 
@@ -93,75 +142,6 @@ impl_vector!(Vec4 { x, y, z, w }, 4);
 //     // }
 // }
 
-// impl<S> ops::Add<Vec2<S>> for Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn add(self, rhs: Vec2<S>) -> Self::Output {
-//         &self + &rhs
-//     }
-// }
-
-// impl<S> ops::Add<Vec2<S>> for &Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn add(self, rhs: Vec2<S>) -> Self::Output {
-//         self + &rhs
-//     }
-// }
-
-// impl<S> ops::Add<&Vec2<S>> for Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn add(self, rhs: &Vec2<S>) -> Self::Output {
-//         &self + rhs
-//     }
-// }
-
-// impl<S> ops::Add<&Vec2<S>> for &Vec2<S> where S: Num {
-//     type Output = Vec2<S>;
-
-//     fn add(self, rhs: &Vec2<S>) -> Self::Output {
-//         Vec2 {
-//             x: self.x + rhs.x,
-//             y: self.y + rhs.y,
-//         }
-//     }
-// }
-
-// impl<S> ops::Sub<Vec2<S>> for Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn sub(self, rhs: Vec2<S>) -> Self::Output {
-//         &self - &rhs
-//     }
-// }
-
-// impl<S> ops::Sub<Vec2<S>> for &Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn sub(self, rhs: Vec2<S>) -> Self::Output {
-//         self - &rhs
-//     }
-// }
-
-// impl<S> ops::Sub<&Vec2<S>> for Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn sub(self, rhs: &Vec2<S>) -> Self::Output {
-//         &self - rhs
-//     }
-// }
-
-// impl<S> ops::Sub<&Vec2<S>> for &Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn sub(self, rhs: &Vec2<S>) -> Self::Output {
-//         Vec2 {
-//             x: self.x - rhs.x,
-//             y: self.y - rhs.y,
-//         }
-//     }
-// }
 
 // impl<S> ops::Mul<S> for Vec2<S> {
 //     type Output = Vec2<S>;

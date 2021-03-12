@@ -10,7 +10,7 @@ macro_rules! impl_zero {
         impl Zero for $t {
             const ZERO: Self = 0 as $t;
         }
-    }
+    };
 }
 
 impl_zero!(i8);
@@ -33,7 +33,7 @@ macro_rules! impl_one {
         impl One for $t {
             const ONE: Self = 1 as $t;
         }
-    }
+    };
 }
 
 impl_one!(i8);
@@ -65,9 +65,7 @@ impl<T, Rhs, Output> NumOps<Rhs, Output> for T where
 {
 }
 
-pub trait Num : Copy + Clone + Debug + Zero + One + NumOps + PartialOrd  {
-
-}
+pub trait Num: Copy + Clone + Debug + Zero + One + NumOps + PartialOrd {}
 
 impl Num for i8 {}
 impl Num for i16 {}
@@ -76,7 +74,7 @@ impl Num for i64 {}
 impl Num for f32 {}
 impl Num for f64 {}
 
-pub trait Float : Num {
+pub trait Float: Num {
     fn sqrt(self) -> Self;
 }
 
