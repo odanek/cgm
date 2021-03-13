@@ -1,8 +1,15 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Sub, Neg};
 
-use crate::{Rad, num::{Float, Num, One, Zero}};
+use crate::{
+    num::{Num, One, Zero, Signed},
+};
 
-use super::Mat4;
+pub trait Vec {
+    type Element: Copy;
+
+    fn len() -> usize;
+    // TODO product and sum
+}
 
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug, Default)]
@@ -40,16 +47,16 @@ macro_rules! impl_operator {
     }) => {
         impl<$S: $Constraint> $Op<$Rhs> for $Lhs {
             type Output = $Out;
-        
+
             fn $op(self, other: $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
             }
         }
-        
+
         impl<'a, $S: $Constraint> $Op<$Rhs> for &'a $Lhs {
             type Output = $Out;
-        
+
             fn $op(self, other: $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -58,22 +65,22 @@ macro_rules! impl_operator {
 
         impl<'a, $S: $Constraint> $Op<&'a $Rhs> for $Lhs {
             type Output = $Out;
-        
+
             fn $op(self, other: &'a $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
             }
         }
-        
+
         impl<'a, 'b, $S: $Constraint> $Op<&'a $Rhs> for &'b $Lhs {
             type Output = $Out;
-        
+
             fn $op(self, other: &'a $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
             }
         }
-    }
+    };
 }
 
 macro_rules! impl_vector {
@@ -89,12 +96,36 @@ macro_rules! impl_vector {
             const ZERO: $VecN<S> = $VecN { $($field: S::ZERO),+ };
         }
 
-        impl_operator!(<S: Num>, Add<$VecN<S>>, $VecN<S>, { 
+        impl<S: Copy> Vec for $VecN<S> {
+            type Element = S;
+
+            fn len() -> usize {
+                $n
+            }
+        }
+
+        impl_operator!(<S: Num>, Add<$VecN<S>>, $VecN<S>, {
             fn add(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field + rhs.$field),+ } }
         });
-        impl_operator!(<S: Num>, Sub<$VecN<S>>, $VecN<S>, { 
+        impl_operator!(<S: Num>, Sub<$VecN<S>>, $VecN<S>, {
             fn sub(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field - rhs.$field),+ } }
         });
+
+        impl<S: Signed> Neg for $VecN<S> {
+            type Output = $VecN<S>;
+
+            fn neg(self) -> Self::Output {
+                $VecN { $($field: -self.$field),+ }
+            }
+        }
+
+        impl<'a, S: Signed> Neg for &'a $VecN<S> {
+            type Output = $VecN<S>;
+
+            fn neg(self) -> Self::Output {
+                $VecN { $($field: -self.$field),+ }
+            }
+        }
     }
 }
 
@@ -103,24 +134,65 @@ impl_vector!(Vec2 { x, y }, 2);
 impl_vector!(Vec3 { x, y, z }, 3);
 impl_vector!(Vec4 { x, y, z, w }, 4);
 
-// pub const ZERO2F: Vec2<f32> = Vec2 { x: 0.0, y: 0.0 };
-// pub const X2F: Vec2<f32> = Vec2 { x: 1.0, y: 0.0 };
-// pub const Y2F: Vec2<f32> = Vec2 { x: 0.0, y: 1.0 };
+impl<S: One> Vec1<S> {
+    const X: Vec1<S> = Vec1 { x: <S as One>::ONE };
+}
 
-// impl<S> Zero for Vec2<S> where S: Zero {
-//     const ZERO: Vec2<S> = Vec2 { x: S::ZERO, y: S::ZERO };
-// }
+impl<S: One + Zero> Vec2<S> {
+    const X: Vec2<S> = Vec2 {
+        x: <S as One>::ONE,
+        y: <S as Zero>::ZERO,
+    };
+    const Y: Vec2<S> = Vec2 {
+        x: <S as Zero>::ZERO,
+        y: <S as One>::ONE,
+    };
+}
 
-// impl<S> Vec2<S> where S: One + Zero {
-//     const X: Vec2<S> = Vec2 { x: S::ONE, y: S::ZERO };
-//     const Y: Vec2<S> = Vec2 { x: S::ZERO, y: S::ONE };
-// }
+impl<S: One + Zero> Vec3<S> {
+    const X: Vec3<S> = Vec3 {
+        x: <S as One>::ONE,
+        y: <S as Zero>::ZERO,
+        z: <S as Zero>::ZERO,
+    };
+    const Y: Vec3<S> = Vec3 {
+        x: <S as Zero>::ZERO,
+        y: <S as One>::ONE,
+        z: <S as Zero>::ZERO,
+    };
+    const Z: Vec3<S> = Vec3 {
+        x: <S as Zero>::ZERO,
+        y: <S as Zero>::ZERO,
+        z: <S as One>::ONE,
+    };
+}
 
-// impl<S> Vec2<S> {    
-//     pub const fn new(x: S, y: S) -> Vec2<S> {
-//         Vec2 { x, y }
-//     }
-// }
+impl<S: One + Zero> Vec4<S> {
+    const X: Vec4<S> = Vec4 {
+        x: <S as One>::ONE,
+        y: <S as Zero>::ZERO,
+        z: <S as Zero>::ZERO,
+        w: <S as One>::ONE,
+    };
+    const Y: Vec4<S> = Vec4 {
+        x: <S as Zero>::ZERO,
+        y: <S as One>::ONE,
+        z: <S as Zero>::ZERO,
+        w: <S as One>::ONE,
+    };
+    const Z: Vec4<S> = Vec4 {
+        x: <S as Zero>::ZERO,
+        y: <S as Zero>::ZERO,
+        z: <S as One>::ONE,
+        w: <S as One>::ONE,
+    };
+    const W: Vec4<S> = Vec4 {
+        x: <S as Zero>::ZERO,
+        y: <S as Zero>::ZERO,
+        z: <S as Zero>::ZERO,
+        w: <S as One>::ONE,
+    };
+}
 
 // impl<S> Vec2<S> where S: Num {
 //     pub fn dot(&self, rhs: &Vec2<S>) -> S {
@@ -141,7 +213,6 @@ impl_vector!(Vec4 { x, y, z, w }, 4);
 //     // self.y.atan2(self.x)
 //     // }
 // }
-
 
 // impl<S> ops::Mul<S> for Vec2<S> {
 //     type Output = Vec2<S>;
@@ -200,59 +271,7 @@ impl_vector!(Vec4 { x, y, z, w }, 4);
 //     }
 // }
 
-// impl<S> ops::Neg for Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn neg(self) -> Self::Output {
-//         -(&self)
-//     }
-// }
-
-// impl<S> ops::Neg for &Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn neg(self) -> Self::Output {
-//         Vec2 {
-//             x: -self.x,
-//             y: -self.y,
-//         }
-//     }
-// }
-
-// #[repr(C)]
-// #[derive(Clone, Copy, Debug, Default)]
-// pub struct Vec3 {
-//     pub x: f32,
-//     pub y: f32,
-//     pub z: f32,
-// }
-
-// pub const ZERO3: Vec3 = Vec3 {
-//     x: 0.0,
-//     y: 0.0,
-//     z: 0.0,
-// };
-// pub const X3: Vec3 = Vec3 {
-//     x: 1.0,
-//     y: 0.0,
-//     z: 0.0,
-// };
-// pub const Y3: Vec3 = Vec3 {
-//     x: 0.0,
-//     y: 1.0,
-//     z: 0.0,
-// };
-// pub const Z3: Vec3 = Vec3 {
-//     x: 0.0,
-//     y: 0.0,
-//     z: 1.0,
-// };
-
 // impl Vec3 {
-//     pub const fn new(x: f32, y: f32, z: f32) -> Vec3 {
-//         Vec3 { x, y, z }
-//     }
-
 //     pub fn length(&self) -> f32 {
 //         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
 //     }
@@ -314,98 +333,6 @@ impl_vector!(Vec4 { x, y, z, w }, 4);
 //     // }
 // }
 
-// impl ops::Add<Vec3> for Vec3 {
-//     type Output = Vec3;
-
-//     fn add(self, rhs: Vec3) -> Self::Output {
-//         &self + &rhs
-//     }
-// }
-
-// impl ops::Add<Vec3> for &Vec3 {
-//     type Output = Vec3;
-
-//     fn add(self, rhs: Vec3) -> Self::Output {
-//         self + &rhs
-//     }
-// }
-
-// impl ops::Add<&Vec3> for Vec3 {
-//     type Output = Vec3;
-
-//     fn add(self, rhs: &Vec3) -> Self::Output {
-//         &self + rhs
-//     }
-// }
-
-// impl ops::Add<&Vec3> for &Vec3 {
-//     type Output = Vec3;
-
-//     fn add(self, rhs: &Vec3) -> Self::Output {
-//         Vec3 {
-//             x: self.x + rhs.x,
-//             y: self.y + rhs.y,
-//             z: self.z + rhs.z,
-//         }
-//     }
-// }
-
-// impl ops::Sub<Vec3> for Vec3 {
-//     type Output = Vec3;
-
-//     fn sub(self, rhs: Vec3) -> Self::Output {
-//         &self - &rhs
-//     }
-// }
-
-// impl ops::Sub<Vec3> for &Vec3 {
-//     type Output = Vec3;
-
-//     fn sub(self, rhs: Vec3) -> Self::Output {
-//         self - &rhs
-//     }
-// }
-
-// impl ops::Sub<&Vec3> for Vec3 {
-//     type Output = Vec3;
-
-//     fn sub(self, rhs: &Vec3) -> Self::Output {
-//         &self - rhs
-//     }
-// }
-
-// impl ops::Sub<&Vec3> for &Vec3 {
-//     type Output = Vec3;
-
-//     fn sub(self, rhs: &Vec3) -> Self::Output {
-//         Vec3 {
-//             x: self.x - rhs.x,
-//             y: self.y - rhs.y,
-//             z: self.z - rhs.z,
-//         }
-//     }
-// }
-
-// impl ops::Mul<f32> for Vec3 {
-//     type Output = Vec3;
-
-//     fn mul(self, rhs: f32) -> Self::Output {
-//         &self * rhs
-//     }
-// }
-
-// impl ops::Mul<f32> for &Vec3 {
-//     type Output = Vec3;
-
-//     fn mul(self, rhs: f32) -> Self::Output {
-//         Vec3 {
-//             x: self.x * rhs,
-//             y: self.y * rhs,
-//             z: self.z * rhs,
-//         }
-//     }
-// }
-
 // impl ops::Mul<Vec3> for f32 {
 //     type Output = Vec3;
 
@@ -442,140 +369,6 @@ impl_vector!(Vec4 { x, y, z, w }, 4);
 //             x: self.x / rhs,
 //             y: self.y / rhs,
 //             z: self.z / rhs,
-//         }
-//     }
-// }
-
-// impl ops::Neg for Vec3 {
-//     type Output = Vec3;
-
-//     fn neg(self) -> Self::Output {
-//         -(&self)
-//     }
-// }
-
-// impl ops::Neg for &Vec3 {
-//     type Output = Vec3;
-
-//     fn neg(self) -> Self::Output {
-//         Vec3 {
-//             x: -self.x,
-//             y: -self.y,
-//             z: -self.z,
-//         }
-//     }
-// }
-
-// #[repr(C)]
-// #[derive(Clone, Copy, Debug, Default)]
-// pub struct Vec4 {
-//     pub x: f32,
-//     pub y: f32,
-//     pub z: f32,
-//     pub w: f32,
-// }
-
-// pub const ZERO4H: Vec4 = Vec4 {
-//     x: 0.0,
-//     y: 0.0,
-//     z: 0.0,
-//     w: 1.0,
-// };
-// pub const X4H: Vec4 = Vec4 {
-//     x: 1.0,
-//     y: 0.0,
-//     z: 0.0,
-//     w: 1.0,
-// };
-// pub const Y4H: Vec4 = Vec4 {
-//     x: 0.0,
-//     y: 1.0,
-//     z: 0.0,
-//     w: 1.0,
-// };
-// pub const Z4H: Vec4 = Vec4 {
-//     x: 0.0,
-//     y: 0.0,
-//     z: 1.0,
-//     w: 1.0,
-// };
-
-// impl Vec4 {
-//     pub const fn new(x: f32, y: f32, z: f32, w: f32) -> Vec4 {
-//         Vec4 { x, y, z, w }
-//     }
-// }
-
-// impl ops::Add<Vec4> for Vec4 {
-//     type Output = Vec4;
-
-//     fn add(self, rhs: Vec4) -> Self::Output {
-//         &self + &rhs
-//     }
-// }
-
-// impl ops::Add<Vec4> for &Vec4 {
-//     type Output = Vec4;
-
-//     fn add(self, rhs: Vec4) -> Self::Output {
-//         self + &rhs
-//     }
-// }
-
-// impl ops::Add<&Vec4> for Vec4 {
-//     type Output = Vec4;
-
-//     fn add(self, rhs: &Vec4) -> Self::Output {
-//         &self + rhs
-//     }
-// }
-
-// impl ops::Add<&Vec4> for &Vec4 {
-//     type Output = Vec4;
-
-//     fn add(self, rhs: &Vec4) -> Self::Output {
-//         Vec4 {
-//             x: self.x + rhs.x,
-//             y: self.y + rhs.y,
-//             z: self.z + rhs.z,
-//             w: self.w + rhs.w,
-//         }
-//     }
-// }
-
-// impl ops::Sub<Vec4> for Vec4 {
-//     type Output = Vec4;
-
-//     fn sub(self, rhs: Vec4) -> Self::Output {
-//         &self - &rhs
-//     }
-// }
-
-// impl ops::Sub<Vec4> for &Vec4 {
-//     type Output = Vec4;
-
-//     fn sub(self, rhs: Vec4) -> Self::Output {
-//         self - &rhs
-//     }
-// }
-
-// impl ops::Sub<&Vec4> for Vec4 {
-//     type Output = Vec4;
-
-//     fn sub(self, rhs: &Vec4) -> Self::Output {
-//         &self - rhs
-//     }
-// }
-
-// impl ops::Sub<&Vec4> for &Vec4 {
-//     type Output = Vec4;
-
-//     fn sub(self, rhs: &Vec4) -> Self::Output {
-//         Vec4 {
-//             x: self.x - rhs.x,
-//             y: self.y - rhs.y,
-//             z: self.z - rhs.z,
-//             w: self.w - rhs.w,
 //         }
 //     }
 // }
@@ -639,27 +432,6 @@ impl_vector!(Vec4 { x, y, z, w }, 4);
 //             y: self.y / rhs,
 //             z: self.z / rhs,
 //             w: self.w / rhs,
-//         }
-//     }
-// }
-
-// impl ops::Neg for Vec4 {
-//     type Output = Vec4;
-
-//     fn neg(self) -> Self::Output {
-//         -(&self)
-//     }
-// }
-
-// impl ops::Neg for &Vec4 {
-//     type Output = Vec4;
-
-//     fn neg(self) -> Self::Output {
-//         Vec4 {
-//             x: -self.x,
-//             y: -self.y,
-//             z: -self.z,
-//             w: -self.w,
 //         }
 //     }
 // }

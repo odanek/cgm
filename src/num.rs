@@ -67,9 +67,13 @@ impl<T, Rhs, Output> NumOps<Rhs, Output> for T where
 
 pub trait Num: Copy + Clone + Debug + Zero + One + NumOps + PartialOrd {}
 
+impl Num for u8 {}
 impl Num for i8 {}
+impl Num for u16 {}
 impl Num for i16 {}
+impl Num for u32 {}
 impl Num for i32 {}
+impl Num for u64 {}
 impl Num for i64 {}
 impl Num for f32 {}
 impl Num for f64 {}
@@ -89,3 +93,11 @@ impl Float for f64 {
         self.sqrt()
     }
 }
+pub trait Signed: Num + Neg<Output = Self> {}
+
+impl Signed for i8 {}
+impl Signed for i16 {}
+impl Signed for i32 {}
+impl Signed for i64 {}
+impl Signed for f32 {}
+impl Signed for f64 {}
