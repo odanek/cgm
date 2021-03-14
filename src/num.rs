@@ -17,10 +17,12 @@ impl_zero!(i8);
 impl_zero!(i16);
 impl_zero!(i32);
 impl_zero!(i64);
+impl_zero!(isize);
 impl_zero!(u8);
 impl_zero!(u16);
 impl_zero!(u32);
 impl_zero!(u64);
+impl_zero!(usize);
 impl_zero!(f32);
 impl_zero!(f64);
 
@@ -40,10 +42,12 @@ impl_one!(i8);
 impl_one!(i16);
 impl_one!(i32);
 impl_one!(i64);
+impl_one!(isize);
 impl_one!(u8);
 impl_one!(u16);
 impl_one!(u32);
 impl_one!(u64);
+impl_one!(usize);
 impl_one!(f32);
 impl_one!(f64);
 
@@ -75,6 +79,8 @@ impl Num for u32 {}
 impl Num for i32 {}
 impl Num for u64 {}
 impl Num for i64 {}
+impl Num for usize {}
+impl Num for isize {}
 impl Num for f32 {}
 impl Num for f64 {}
 

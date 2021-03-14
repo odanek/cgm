@@ -1,10 +1,12 @@
-use std::ops::{Add, Sub, Neg};
+use std::ops::{Add, Sub, Mul, Div, Neg};
 
-use crate::{
-    num::{Num, One, Zero, Signed},
-};
+use crate::num::{Num, One, Signed, Zero};
 
-pub trait Vec {
+pub trait Vec 
+// where
+//     Self : Index<usize, Output = <Self as Vec>::Element>,
+//     Self : IndexMut<usize, Output = <Self as Vec>::Element>
+{
     type Element: Copy;
 
     fn len() -> usize;
@@ -41,48 +43,6 @@ pub struct Vec4<S> {
     pub w: S,
 }
 
-macro_rules! impl_operator {
-    (<$S:ident: $Constraint:ident>, $Op:ident<$Rhs:ty>, $Lhs:ty, {
-        fn $op:ident($lhs: ident, $rhs: ident) -> $Out:ty { $body:expr }
-    }) => {
-        impl<$S: $Constraint> $Op<$Rhs> for $Lhs {
-            type Output = $Out;
-
-            fn $op(self, other: $Rhs) -> Self::Output {
-                let ($lhs, $rhs) = (self, other);
-                $body
-            }
-        }
-
-        impl<'a, $S: $Constraint> $Op<$Rhs> for &'a $Lhs {
-            type Output = $Out;
-
-            fn $op(self, other: $Rhs) -> Self::Output {
-                let ($lhs, $rhs) = (self, other);
-                $body
-            }
-        }
-
-        impl<'a, $S: $Constraint> $Op<&'a $Rhs> for $Lhs {
-            type Output = $Out;
-
-            fn $op(self, other: &'a $Rhs) -> Self::Output {
-                let ($lhs, $rhs) = (self, other);
-                $body
-            }
-        }
-
-        impl<'a, 'b, $S: $Constraint> $Op<&'a $Rhs> for &'b $Lhs {
-            type Output = $Out;
-
-            fn $op(self, other: &'a $Rhs) -> Self::Output {
-                let ($lhs, $rhs) = (self, other);
-                $body
-            }
-        }
-    };
-}
-
 macro_rules! impl_vector {
     ($VecN:ident { $($field:ident),+ }, $n:expr) => {
         impl<S> $VecN<S> {
@@ -110,6 +70,24 @@ macro_rules! impl_vector {
         impl_operator!(<S: Num>, Sub<$VecN<S>>, $VecN<S>, {
             fn sub(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field - rhs.$field),+ } }
         });
+        impl_operator!(<S: Num>, Mul<S>, $VecN<S>, {
+            fn mul(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field * rhs),+ } }
+        });
+        impl_operator!(<S: Num>, Div<S>, $VecN<S>, {
+            fn div(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field / rhs),+ } }
+        });
+        impl_scalar_ops!($VecN<usize> { $($field),+ });
+        impl_scalar_ops!($VecN<u8> { $($field),+ });
+        impl_scalar_ops!($VecN<u16> { $($field),+ });
+        impl_scalar_ops!($VecN<u32> { $($field),+ });
+        impl_scalar_ops!($VecN<u64> { $($field),+ });
+        impl_scalar_ops!($VecN<isize> { $($field),+ });
+        impl_scalar_ops!($VecN<i8> { $($field),+ });
+        impl_scalar_ops!($VecN<i16> { $($field),+ });
+        impl_scalar_ops!($VecN<i32> { $($field),+ });
+        impl_scalar_ops!($VecN<i64> { $($field),+ });
+        impl_scalar_ops!($VecN<f32> { $($field),+ });
+        impl_scalar_ops!($VecN<f64> { $($field),+ });
 
         impl<S: Signed> Neg for $VecN<S> {
             type Output = $VecN<S>;
@@ -129,10 +107,22 @@ macro_rules! impl_vector {
     }
 }
 
+macro_rules! impl_scalar_ops {
+    ($VecN:ident<$S:ident> { $($field:ident),+ }) => {
+        impl_operator!(Mul<$VecN<$S>>, $S, {
+            fn mul(scalar, vector) -> $VecN<$S> { $VecN { $($field: scalar * vector.$field),+ } }
+        });
+        impl_operator!(Div<$VecN<$S>>, $S, {
+            fn div(scalar, vector) -> $VecN<$S> { $VecN { $($field: scalar / vector.$field),+ } }
+        });        
+    };
+}
+
 impl_vector!(Vec1 { x }, 1);
 impl_vector!(Vec2 { x, y }, 2);
 impl_vector!(Vec3 { x, y, z }, 3);
 impl_vector!(Vec4 { x, y, z, w }, 4);
+
 
 impl<S: One> Vec1<S> {
     const X: Vec1<S> = Vec1 { x: <S as One>::ONE };
@@ -214,62 +204,6 @@ impl<S: One + Zero> Vec4<S> {
 //     // }
 // }
 
-// impl<S> ops::Mul<S> for Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn mul(self, rhs: S) -> Self::Output {
-//         &self * rhs
-//     }
-// }
-
-// impl<S> ops::Mul<S> for &Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn mul(self, rhs: S) -> Self::Output {
-//         Vec2 {
-//             x: self.x * rhs,
-//             y: self.y * rhs,
-//         }
-//     }
-// }
-
-// impl<S> ops::Mul<Vec2<S>> for S where S: Num {
-//     type Output = Vec2<S>;
-
-//     fn mul(self, rhs: Vec2<S>) -> Self::Output {
-//         self * &rhs
-//     }
-// }
-
-// impl<S> ops::Mul<&Vec2<S>> for S {
-//     type Output = Vec2<S>;
-
-//     fn mul(self, rhs: &Vec2<S>) -> Self::Output {
-//         Vec2 {
-//             x: self * rhs.x,
-//             y: self * rhs.y,
-//         }
-//     }
-// }
-
-// impl<S> ops::Div<S> for Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn div(self, rhs: S) -> Self::Output {
-//         &self / rhs
-//     }
-// }
-
-// impl<S> ops::Div<S> for &Vec2<S> {
-//     type Output = Vec2<S>;
-
-//     fn div(self, rhs: S) -> Self::Output {
-//         Vec2 {
-//             x: self.x / rhs,
-//             y: self.y / rhs,
-//         }
-//     }
-// }
 
 // impl Vec3 {
 //     pub fn length(&self) -> f32 {
@@ -333,105 +267,21 @@ impl<S: One + Zero> Vec4<S> {
 //     // }
 // }
 
-// impl ops::Mul<Vec3> for f32 {
-//     type Output = Vec3;
+#[cfg(test)]
+mod tests {
+    mod vec {
 
-//     fn mul(self, rhs: Vec3) -> Self::Output {
-//         self * &rhs
-//     }
-// }
+    }
 
-// impl ops::Mul<&Vec3> for f32 {
-//     type Output = Vec3;
+    mod vec2 {
 
-//     fn mul(self, rhs: &Vec3) -> Self::Output {
-//         Vec3 {
-//             x: self * rhs.x,
-//             y: self * rhs.y,
-//             z: self * rhs.z,
-//         }
-//     }
-// }
+    }
 
-// impl ops::Div<f32> for Vec3 {
-//     type Output = Vec3;
+    mod vec3 {
 
-//     fn div(self, rhs: f32) -> Self::Output {
-//         &self / rhs
-//     }
-// }
+    }
 
-// impl ops::Div<f32> for &Vec3 {
-//     type Output = Vec3;
-
-//     fn div(self, rhs: f32) -> Self::Output {
-//         Vec3 {
-//             x: self.x / rhs,
-//             y: self.y / rhs,
-//             z: self.z / rhs,
-//         }
-//     }
-// }
-
-// impl ops::Mul<f32> for Vec4 {
-//     type Output = Vec4;
-
-//     fn mul(self, rhs: f32) -> Self::Output {
-//         &self * rhs
-//     }
-// }
-
-// impl ops::Mul<f32> for &Vec4 {
-//     type Output = Vec4;
-
-//     fn mul(self, rhs: f32) -> Self::Output {
-//         Vec4 {
-//             x: self.x * rhs,
-//             y: self.y * rhs,
-//             z: self.z * rhs,
-//             w: self.w * rhs,
-//         }
-//     }
-// }
-
-// impl ops::Mul<Vec4> for f32 {
-//     type Output = Vec4;
-
-//     fn mul(self, rhs: Vec4) -> Self::Output {
-//         self * &rhs
-//     }
-// }
-
-// impl ops::Mul<&Vec4> for f32 {
-//     type Output = Vec4;
-
-//     fn mul(self, rhs: &Vec4) -> Self::Output {
-//         Vec4 {
-//             x: self * rhs.x,
-//             y: self * rhs.y,
-//             z: self * rhs.z,
-//             w: self * rhs.w,
-//         }
-//     }
-// }
-
-// impl ops::Div<f32> for Vec4 {
-//     type Output = Vec4;
-
-//     fn div(self, rhs: f32) -> Self::Output {
-//         &self / rhs
-//     }
-// }
-
-// impl ops::Div<f32> for &Vec4 {
-//     type Output = Vec4;
-
-//     fn div(self, rhs: f32) -> Self::Output {
-//         Vec4 {
-//             x: self.x / rhs,
-//             y: self.y / rhs,
-//             z: self.z / rhs,
-//             w: self.w / rhs,
-//         }
-//     }
-// }
+    mod vec4 {
+        
+    }
+}
