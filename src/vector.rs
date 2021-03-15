@@ -2,7 +2,7 @@ use std::ops::{Add, Sub, Mul, Div, Neg};
 
 use crate::num::{Num, One, Signed, Zero};
 
-pub trait Vec 
+pub trait Vector 
 // where
 //     Self : Index<usize, Output = <Self as Vec>::Element>,
 //     Self : IndexMut<usize, Output = <Self as Vec>::Element>
@@ -56,7 +56,7 @@ macro_rules! impl_vector {
             const ZERO: $VecN<S> = $VecN { $($field: S::ZERO),+ };
         }
 
-        impl<S: Copy> Vec for $VecN<S> {
+        impl<S: Copy> Vector for $VecN<S> {
             type Element = S;
 
             fn len() -> usize {
@@ -269,12 +269,87 @@ impl<S: One + Zero> Vec4<S> {
 
 #[cfg(test)]
 mod tests {
-    mod vec {
+    mod vec1 {    
+        use crate::Vec1;
 
+        #[test]
+        fn test_constructor() {
+            let v = Vec1::new(5.0);
+            assert_eq!(v.x, 5.0);
+        }
+
+        #[test]
+        fn test_add() {
+            let v = Vec1::new(3.0) + Vec1::new(5.0);
+            assert_eq!(v.x, 8.0);
+        }
+
+        #[test]
+        fn test_sub() {
+            let v = Vec1::new(3.0) - Vec1::new(5.0);
+            assert_eq!(v.x, -2.0);
+        }
+
+        #[test]
+        fn test_mul() {
+            let a = Vec1::new(3.0) * 2.0;
+            assert_eq!(a.x, 6.0);
+            let b = 2.0f64 * Vec1::new(3.0); // TODO: Why is the f64 needed?
+            assert_eq!(b.x, 6.0);
+        }
+
+        #[test]
+        fn test_div() {
+            let a = Vec1::new(4.0) / 2.0;
+            assert_eq!(a.x, 2.0);
+            let b = 4.0f64 / Vec1::new(2.0); // TODO: Why is the f64 needed?
+            assert_eq!(b.x, 2.0);
+        }
     }
 
     mod vec2 {
+        use crate::Vec2;
 
+        #[test]
+        fn test_constructor() {
+            let v = Vec2::new(5.0, 3.0);
+            assert_eq!(v.x, 5.0);
+            assert_eq!(v.y, 3.0);
+        }
+
+        #[test]
+        fn test_add() {
+            let v = Vec2::new(3.0, 4.0) + Vec2::new(5.0, 6.0);
+            assert_eq!(v.x, 8.0);
+            assert_eq!(v.y, 10.0);
+        }
+
+        #[test]
+        fn test_sub() {
+            let v = Vec2::new(3.0, 4.0) - Vec2::new(5.0, 1.0);
+            assert_eq!(v.x, -2.0);
+            assert_eq!(v.y, 3.0);
+        }
+
+        #[test]
+        fn test_mul() {
+            let a = Vec2::new(3.0, 4.0) * 2.0;
+            assert_eq!(a.x, 6.0);
+            assert_eq!(a.y, 8.0);
+            let b = 2.0f64 * Vec2::new(3.0, 4.0); // TODO: Why is the f64 needed?
+            assert_eq!(b.x, 6.0);
+            assert_eq!(b.y, 8.0);
+        }
+
+        #[test]
+        fn test_div() {
+            let a = Vec2::new(4.0, 6.0) / 2.0;
+            assert_eq!(a.x, 2.0);
+            assert_eq!(a.y, 3.0);
+            let b = 4.0f64 / Vec2::new(2.0, 1.0); // TODO: Why is the f64 needed?
+            assert_eq!(b.x, 2.0);
+            assert_eq!(b.y, 4.0);
+        }
     }
 
     mod vec3 {
