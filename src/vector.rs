@@ -1,8 +1,8 @@
-use std::ops::{Add, Sub, Mul, Div, Neg};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use crate::num::{Num, One, Signed, Zero};
 
-pub trait Vector 
+pub trait Vector
 // where
 //     Self : Index<usize, Output = <Self as Vec>::Element>,
 //     Self : IndexMut<usize, Output = <Self as Vec>::Element>
@@ -114,7 +114,7 @@ macro_rules! impl_scalar_ops {
         });
         impl_operator!(Div<$VecN<$S>>, $S, {
             fn div(scalar, vector) -> $VecN<$S> { $VecN { $($field: scalar / vector.$field),+ } }
-        });        
+        });
     };
 }
 
@@ -123,34 +123,33 @@ impl_vector!(Vec2 { x, y }, 2);
 impl_vector!(Vec3 { x, y, z }, 3);
 impl_vector!(Vec4 { x, y, z, w }, 4);
 
-
 impl<S: One> Vec1<S> {
-    const X: Vec1<S> = Vec1 { x: <S as One>::ONE };
+    pub const X: Vec1<S> = Vec1 { x: <S as One>::ONE };
 }
 
 impl<S: One + Zero> Vec2<S> {
-    const X: Vec2<S> = Vec2 {
+    pub const X: Vec2<S> = Vec2 {
         x: <S as One>::ONE,
         y: <S as Zero>::ZERO,
     };
-    const Y: Vec2<S> = Vec2 {
+    pub const Y: Vec2<S> = Vec2 {
         x: <S as Zero>::ZERO,
         y: <S as One>::ONE,
     };
 }
 
 impl<S: One + Zero> Vec3<S> {
-    const X: Vec3<S> = Vec3 {
+    pub const X: Vec3<S> = Vec3 {
         x: <S as One>::ONE,
         y: <S as Zero>::ZERO,
         z: <S as Zero>::ZERO,
     };
-    const Y: Vec3<S> = Vec3 {
+    pub const Y: Vec3<S> = Vec3 {
         x: <S as Zero>::ZERO,
         y: <S as One>::ONE,
         z: <S as Zero>::ZERO,
     };
-    const Z: Vec3<S> = Vec3 {
+    pub const Z: Vec3<S> = Vec3 {
         x: <S as Zero>::ZERO,
         y: <S as Zero>::ZERO,
         z: <S as One>::ONE,
@@ -158,25 +157,25 @@ impl<S: One + Zero> Vec3<S> {
 }
 
 impl<S: One + Zero> Vec4<S> {
-    const X: Vec4<S> = Vec4 {
+    pub const X: Vec4<S> = Vec4 {
         x: <S as One>::ONE,
         y: <S as Zero>::ZERO,
         z: <S as Zero>::ZERO,
         w: <S as One>::ONE,
     };
-    const Y: Vec4<S> = Vec4 {
+    pub const Y: Vec4<S> = Vec4 {
         x: <S as Zero>::ZERO,
         y: <S as One>::ONE,
         z: <S as Zero>::ZERO,
         w: <S as One>::ONE,
     };
-    const Z: Vec4<S> = Vec4 {
+    pub const Z: Vec4<S> = Vec4 {
         x: <S as Zero>::ZERO,
         y: <S as Zero>::ZERO,
         z: <S as One>::ONE,
         w: <S as One>::ONE,
     };
-    const W: Vec4<S> = Vec4 {
+    pub const W: Vec4<S> = Vec4 {
         x: <S as Zero>::ZERO,
         y: <S as Zero>::ZERO,
         z: <S as Zero>::ZERO,
@@ -203,7 +202,6 @@ impl<S: One + Zero> Vec4<S> {
 //     // self.y.atan2(self.x)
 //     // }
 // }
-
 
 // impl Vec3 {
 //     pub fn length(&self) -> f32 {
@@ -269,8 +267,14 @@ impl<S: One + Zero> Vec4<S> {
 
 #[cfg(test)]
 mod tests {
-    mod vec1 {    
-        use crate::Vec1;
+    mod vec1 {
+        use crate::{Vec1, Zero};
+
+        #[test]
+        fn test_zero() {
+            let v = Vec1::<f32>::ZERO;
+            assert_eq!(v.x, 0.0);
+        }
 
         #[test]
         fn test_constructor() {
@@ -308,7 +312,14 @@ mod tests {
     }
 
     mod vec2 {
-        use crate::Vec2;
+        use crate::{Vec2, Zero};
+
+        #[test]
+        fn test_zero() {
+            let v = Vec2::<f32>::ZERO;
+            assert_eq!(v.x, 0.0);
+            assert_eq!(v.y, 0.0);
+        }
 
         #[test]
         fn test_constructor() {
@@ -353,10 +364,130 @@ mod tests {
     }
 
     mod vec3 {
+        use crate::{Vec3, Zero};
 
+        #[test]
+        fn test_zero() {
+            let v = Vec3::<f32>::ZERO;
+            assert_eq!(v.x, 0.0);
+            assert_eq!(v.y, 0.0);
+            assert_eq!(v.z, 0.0);
+        }
+
+        #[test]
+        fn test_constructor() {
+            let v = Vec3::new(5.0, 3.0, 1.0);
+            assert_eq!(v.x, 5.0);
+            assert_eq!(v.y, 3.0);
+            assert_eq!(v.z, 1.0);
+        }
+
+        #[test]
+        fn test_add() {
+            let v = Vec3::new(3.0, 4.0, 1.0) + Vec3::new(5.0, 6.0, 2.0);
+            assert_eq!(v.x, 8.0);
+            assert_eq!(v.y, 10.0);
+            assert_eq!(v.z, 3.0);
+        }
+
+        #[test]
+        fn test_sub() {
+            let v = Vec3::new(3.0, 4.0, 7.0) - Vec3::new(5.0, 1.0, 2.0);
+            assert_eq!(v.x, -2.0);
+            assert_eq!(v.y, 3.0);
+            assert_eq!(v.z, 5.0);
+        }
+
+        #[test]
+        fn test_mul() {
+            let a = Vec3::new(3.0, 4.0, 1.0) * 2.0;
+            assert_eq!(a.x, 6.0);
+            assert_eq!(a.y, 8.0);
+            assert_eq!(a.z, 2.0);
+            let b = 2.0 * Vec3::<f64>::new(3.0, 4.0, 1.0);
+            assert_eq!(b.x, 6.0);
+            assert_eq!(b.y, 8.0);
+            assert_eq!(b.z, 2.0);
+        }
+
+        #[test]
+        fn test_div() {
+            let a = Vec3::new(4.0, 6.0, 2.0) / 2.0;
+            assert_eq!(a.x, 2.0);
+            assert_eq!(a.y, 3.0);
+            assert_eq!(a.z, 1.0);
+            let b = 4.0 / Vec3::<f64>::new(2.0, 1.0, 4.0);
+            assert_eq!(b.x, 2.0);
+            assert_eq!(b.y, 4.0);
+            assert_eq!(b.z, 1.0);
+        }
     }
 
     mod vec4 {
-        
+        use crate::{Vec4, Zero};
+
+        #[test]
+        fn test_zero() {
+            let v = Vec4::<f32>::ZERO;
+            assert_eq!(v.x, 0.0);
+            assert_eq!(v.y, 0.0);
+            assert_eq!(v.z, 0.0);
+            assert_eq!(v.w, 0.0);
+        }
+
+        #[test]
+        fn test_constructor() {
+            let v = Vec4::new(5.0, 3.0, 1.0, 2.0);
+            assert_eq!(v.x, 5.0);
+            assert_eq!(v.y, 3.0);
+            assert_eq!(v.z, 1.0);
+            assert_eq!(v.w, 2.0);
+        }
+
+        #[test]
+        fn test_add() {
+            let v = Vec4::new(3.0, 4.0, 1.0, 1.0) + Vec4::new(5.0, 6.0, 2.0, 6.0);
+            assert_eq!(v.x, 8.0);
+            assert_eq!(v.y, 10.0);
+            assert_eq!(v.z, 3.0);
+            assert_eq!(v.w, 7.0);
+        }
+
+        #[test]
+        fn test_sub() {
+            let v = Vec4::new(3.0, 4.0, 7.0, 5.0) - Vec4::new(5.0, 1.0, 2.0, 4.0);
+            assert_eq!(v.x, -2.0);
+            assert_eq!(v.y, 3.0);
+            assert_eq!(v.z, 5.0);
+            assert_eq!(v.w, 1.0);
+        }
+
+        #[test]
+        fn test_mul() {
+            let a = Vec4::new(3.0, 4.0, 1.0, 2.0) * 2.0;
+            assert_eq!(a.x, 6.0);
+            assert_eq!(a.y, 8.0);
+            assert_eq!(a.z, 2.0);
+            assert_eq!(a.w, 4.0);
+            let b = 2.0 * Vec4::<f64>::new(3.0, 4.0, 1.0, 2.0);
+            assert_eq!(b.x, 6.0);
+            assert_eq!(b.y, 8.0);
+            assert_eq!(b.z, 2.0);
+            assert_eq!(b.w, 4.0);
+        }
+
+        #[test]
+        fn test_div() {
+            let a = Vec4::new(4.0, 6.0, 2.0, 8.0) / 2.0;
+            assert_eq!(a.x, 2.0);
+            assert_eq!(a.y, 3.0);
+            assert_eq!(a.z, 1.0);
+            assert_eq!(a.w, 4.0);
+            let b = 4.0 / Vec4::<f64>::new(2.0, 1.0, 4.0, 8.0);
+            assert_eq!(b.x, 2.0);
+            assert_eq!(b.y, 4.0);
+            assert_eq!(b.z, 1.0);
+            assert_eq!(b.w, 0.5);
+        }        
     }
 }
