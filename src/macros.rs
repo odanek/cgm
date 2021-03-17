@@ -1,5 +1,3 @@
-#![macro_use]
-
 macro_rules! impl_operator {
     // Right-hand side is a scalar
     (<$S:ident: $Constraint:ident>, $Op:ident<$Rhs:ident>, $Lhs:ty, {

@@ -53,10 +53,10 @@ impl Mat4 {
         Self::translate(vec.x, vec.y, vec.z)
     }
 
-    pub fn rotate(radians: Rad, axis: &Vec3<f32>) -> Mat4 {
-        let c = radians.0.cos();
+    pub fn rotate(radians: Rad<f32>, axis: &Vec3<f32>) -> Mat4 {
+        let c = radians.cos();
         let mc = 1.0 - c;
-        let s = radians.0.sin();
+        let s = radians.sin();
 
         let x = axis.x;
         let y = axis.y;
@@ -73,9 +73,9 @@ impl Mat4 {
         }
     }
 
-    pub fn rotate_x(radians: Rad) -> Mat4 {
-        let s = radians.0.sin();
-        let c = radians.0.cos();
+    pub fn rotate_x(radians: Rad<f32>) -> Mat4 {
+        let s = radians.sin();
+        let c = radians.cos();
 
         Mat4 {
             #[cfg_attr(rustfmt, rustfmt::skip)]
@@ -88,9 +88,9 @@ impl Mat4 {
         }
     }
 
-    pub fn rotate_y(radians: Rad) -> Mat4 {
-        let s = radians.0.sin();
-        let c = radians.0.cos();
+    pub fn rotate_y(radians: Rad<f32>) -> Mat4 {
+        let s = radians.sin();
+        let c = radians.cos();
 
         Mat4 {
             #[cfg_attr(rustfmt, rustfmt::skip)]
@@ -103,9 +103,9 @@ impl Mat4 {
         }
     }
 
-    pub fn rotate_z(radians: Rad) -> Mat4 {
-        let s = radians.0.sin();
-        let c = radians.0.cos();
+    pub fn rotate_z(radians: Rad<f32>) -> Mat4 {
+        let s = radians.sin();
+        let c = radians.cos();
 
         Mat4 {
             #[cfg_attr(rustfmt, rustfmt::skip)]
@@ -118,7 +118,7 @@ impl Mat4 {
         }
     }
 
-    pub fn perspective(fov: Rad, aspect: f32, near_clip: f32, far_clip: f32) -> Mat4 {
+    pub fn perspective(fov: Rad<f32>, aspect: f32, near_clip: f32, far_clip: f32) -> Mat4 {
         let half_fov = fov.0 / 2.0;
         let f = half_fov.cos() / half_fov.sin();
         let d = far_clip - near_clip;

@@ -85,7 +85,16 @@ impl Num for f32 {}
 impl Num for f64 {}
 
 pub trait Float: Num {
+    const PI: Self;
+
     fn sqrt(self) -> Self;
+    fn sin(self) -> Self;
+    fn cos(self) -> Self;
+    fn tan(self) -> Self;
+    fn asin(self) -> Self;
+    fn acos(self) -> Self;
+    fn atan(self) -> Self;
+    fn atan2(self, b: Self) -> Self;
 }
 
 impl Float for f32 {

@@ -59,6 +59,7 @@ macro_rules! impl_vector {
         impl<S: Copy> Vector for $VecN<S> {
             type Element = S;
 
+            #[inline]
             fn len() -> usize {
                 $n
             }
