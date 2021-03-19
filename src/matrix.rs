@@ -1,6 +1,6 @@
 use std::ops;
 
-use crate::Rad;
+use crate::{Angle, Rad};
 
 use super::{Vec3, Vec4};
 

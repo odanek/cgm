@@ -84,17 +84,17 @@ impl Num for isize {}
 impl Num for f32 {}
 impl Num for f64 {}
 
-pub trait Float: Num {
-    const PI: Self;
+pub trait Signed: Num + Neg<Output = Self> {}
 
+impl Signed for i8 {}
+impl Signed for i16 {}
+impl Signed for i32 {}
+impl Signed for i64 {}
+impl Signed for f32 {}
+impl Signed for f64 {}
+
+pub trait Float: Num {
     fn sqrt(self) -> Self;
-    fn sin(self) -> Self;
-    fn cos(self) -> Self;
-    fn tan(self) -> Self;
-    fn asin(self) -> Self;
-    fn acos(self) -> Self;
-    fn atan(self) -> Self;
-    fn atan2(self, b: Self) -> Self;
 }
 
 impl Float for f32 {
@@ -108,11 +108,3 @@ impl Float for f64 {
         self.sqrt()
     }
 }
-pub trait Signed: Num + Neg<Output = Self> {}
-
-impl Signed for i8 {}
-impl Signed for i16 {}
-impl Signed for i32 {}
-impl Signed for i64 {}
-impl Signed for f32 {}
-impl Signed for f64 {}

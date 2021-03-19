@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 
-use crate::{Float, Zero};
+use crate::{Float, Num, Signed, Zero};
 
 pub trait Angle
 where
@@ -70,80 +70,113 @@ pub struct Deg<S>(pub S);
 #[derive(Copy, Clone, PartialEq, PartialOrd)]
 pub struct Rad<S>(pub S);
 
-impl<S> From<Rad<S>> for Deg<S>
+impl<S: Float> From<Rad<S>> for Deg<S>
 where
     Rad<S>: Angle,
     Deg<S>: Angle,
 {
     #[inline]
     fn from(rad: Rad<S>) -> Deg<S> {
-        Deg(rad.0 * Deg::<S>::TURN_2 / Rad::<S>::TURN_2)
+        Deg(rad.0 * (Deg::<S>::TURN_2).0 / (Rad::<S>::TURN_2).0)
     }
 }
 
-impl<S> From<Deg<S>> for Rad<S>
+impl<S: Float> From<Deg<S>> for Rad<S>
 where
     Deg<S>: Angle,
     Rad<S>: Angle,
 {
     #[inline]
     fn from(deg: Deg<S>) -> Rad<S> {
-        Rad(deg.0 * Rad::<S>::TURN_2 / Deg::<S>::TURN_2)
+        Rad(deg.0 * (Rad::<S>::TURN_2).0 / (Deg::<S>::TURN_2).0)
     }
 }
 
-impl<S: Float> Angle for Rad<S> {
-    type Unitless = S;
+impl<S: Num> Zero for Rad<S> {
+    const ZERO: Self = Rad(<S as Zero>::ZERO);
+}
 
-    const TURN: Rad<S> = Rad(2 * <S as Float>::PI);
-    const TURN_2: Rad<S> = Rad(<S as Float>::PI);
-    const TURN_3: Rad<S> = Rad(2 * <S as Float>::PI / 3);
-    const TURN_4: Rad<S> = Rad(<S as Float>::PI / 2);
-    const TURN_6: Rad<S> = Rad(<S as Float>::PI / 3);
+impl<S: Signed> Neg for Rad<S> {
+    type Output = Rad<S>;
 
     #[inline]
-    fn sin(self) -> Self::Unitless {
-        self.0.sin()
-    }
+    fn neg(self) -> Rad<S> { Rad(-self.0) }
+}
+
+impl<'a, S: Signed> Neg for &'a Rad<S> {
+    type Output = Rad<S>;
 
     #[inline]
-    fn cos(self) -> Self::Unitless {
-        self.0.cos()
-    }
+    fn neg(self) -> Rad<S> { Rad(-self.0) }
+}
 
-    #[inline]
-    fn tan(self) -> Self::Unitless {
-        self.0.tan()
-    }
-
-    #[inline]
-    fn asin(ratio: Self::Unitless) -> Self {
-        Rad(ratio.asin())
-    }
-
-    #[inline]
-    fn acos(ratio: Self::Unitless) -> Self {
-        Rad(ratio.acos())
-    }
-
-    #[inline]
-    fn atan(ratio: Self::Unitless) -> Self {
-        Rad(ratio.atan())
-    }
-
-    #[inline]
-    fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
-        Rad(a.atan2(b))
+macro_rules! impl_radians {
+    ($Angle:ident<$S: ty>, $turn_2:expr) => {
+        impl Angle for $Angle<$S> {
+            type Unitless = $S;
+        
+            const TURN: $Angle<$S> = $Angle(2.0 * $turn_2);
+            const TURN_2: $Angle<$S> = $Angle($turn_2);
+            const TURN_3: $Angle<$S> = $Angle(2.0 * $turn_2 / 3.0);
+            const TURN_4: $Angle<$S> = $Angle($turn_2 / 2.0);
+            const TURN_6: $Angle<$S> = $Angle($turn_2 / 3.0);
+        
+            #[inline]
+            fn sin(self) -> Self::Unitless {
+                self.0.sin()
+            }
+        
+            #[inline]
+            fn cos(self) -> Self::Unitless {
+                self.0.cos()
+            }
+        
+            #[inline]
+            fn tan(self) -> Self::Unitless {
+                self.0.tan()
+            }
+        
+            #[inline]
+            fn asin(ratio: Self::Unitless) -> Self {
+                Rad(ratio.asin())
+            }
+        
+            #[inline]
+            fn acos(ratio: Self::Unitless) -> Self {
+                Rad(ratio.acos())
+            }
+        
+            #[inline]
+            fn atan(ratio: Self::Unitless) -> Self {
+                Rad(ratio.atan())
+            }
+        
+            #[inline]
+            fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
+                Rad(a.atan2(b))
+            }
+        }
+        
+        // impl_operator!(<S: Float>, Add<Rad<S>>, Rad<S>, {
+        //     fn add(lhs, rhs) -> Rad<S> { Rad(lhs.0 + rhs.0) }
+        // });
+        // impl_operator!(<S: Float>, Sub<Rad<S>>, Rad<S>, {
+        //     fn sub(lhs, rhs) -> Rad<S> { Rad(lhs.0 - rhs.0) }
+        // });
+        // impl_operator!(<S: Float>, Mul<S>, Rad<S>, {
+        //     fn mul(lhs, rhs) -> Rad<S> { Rad(lhs.0 * rhs) }
+        // });
+        // impl_operator!(<S: Float>, Div<Rad<S>>, Rad<S>, {
+        //     fn div(lhs, rhs) -> S { lhs.0 / rhs.0 }
+        // });
+        // impl_operator!(<S: Float>, Div<S>, Rad<S>, {
+        //     fn div(lhs, rhs) -> Rad<S> { Rad(lhs.0 / rhs) }
+        // });
+        // impl_operator!(<S: Float>, Rem<Rad<S>>, Rad<S>, {
+        //     fn rem(lhs, rhs) -> Rad<S> { Rad(lhs.0 % rhs.0) }
+        // });        
     }
 }
 
-impl_operator!(<S: Float>, Add<Rad<S>>, Rad<S>, {
-    fn add(lhs, rhs) -> Rad<S> { Rad(lhs.0 + rhs.0) }
-});
-impl_operator!(<S: Float>, Sub<Rad<S>>, Rad<S>, {
-    fn sub(lhs, rhs) -> Rad<S> { Rad(lhs.0 - rhs.0) }
-});
-impl_operator!(<S: Float>, Div<Rad<S>>, Rad<S>, {
-    fn div(lhs, rhs) -> S { lhs.0 / rhs.0 }
-});
-
+impl_radians!(Rad<f32>, std::f32::consts::PI);
+impl_radians!(Rad<f64>, std::f64::consts::PI);
