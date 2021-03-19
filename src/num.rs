@@ -84,14 +84,14 @@ impl Num for isize {}
 impl Num for f32 {}
 impl Num for f64 {}
 
-pub trait Signed: Num + Neg<Output = Self> {}
+pub trait SignedNum: Num + Neg<Output = Self> {}
 
-impl Signed for i8 {}
-impl Signed for i16 {}
-impl Signed for i32 {}
-impl Signed for i64 {}
-impl Signed for f32 {}
-impl Signed for f64 {}
+impl SignedNum for i8 {}
+impl SignedNum for i16 {}
+impl SignedNum for i32 {}
+impl SignedNum for i64 {}
+impl SignedNum for f32 {}
+impl SignedNum for f64 {}
 
 pub trait Float: Num {
     fn sqrt(self) -> Self;

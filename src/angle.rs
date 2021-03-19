@@ -1,11 +1,10 @@
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 
-use crate::{Float, Num, Signed, Zero};
+use crate::{Float, Num, Zero};
 
 pub trait Angle
 where
-    Self: Copy + Clone + PartialEq + PartialOrd,
-    Self: Zero,
+    Self: Copy + Clone + PartialEq + PartialOrd + Zero,
     Self: Neg<Output = Self>,
     Self: Add<Self, Output = Self>,
     Self: Sub<Self, Output = Self>,
@@ -96,14 +95,14 @@ impl<S: Num> Zero for Rad<S> {
     const ZERO: Self = Rad(<S as Zero>::ZERO);
 }
 
-impl<S: Signed> Neg for Rad<S> {
+impl<S> Neg for Rad<S> where S: Neg<Output = Self> {
     type Output = Rad<S>;
 
     #[inline]
     fn neg(self) -> Rad<S> { Rad(-self.0) }
 }
 
-impl<'a, S: Signed> Neg for &'a Rad<S> {
+impl<'a, S> Neg for &'a Rad<S> where S: Neg<Output = Self> {
     type Output = Rad<S>;
 
     #[inline]

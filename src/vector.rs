@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::num::{Num, One, Signed, Zero};
+use crate::num::{Num, One, SignedNum, Zero};
 
 pub trait Vector
 // where
@@ -90,7 +90,7 @@ macro_rules! impl_vector {
         impl_scalar_ops!($VecN<f32> { $($field),+ });
         impl_scalar_ops!($VecN<f64> { $($field),+ });
 
-        impl<S: Signed> Neg for $VecN<S> {
+        impl<S: SignedNum> Neg for $VecN<S> {
             type Output = $VecN<S>;
 
             fn neg(self) -> Self::Output {
@@ -98,7 +98,7 @@ macro_rules! impl_vector {
             }
         }
 
-        impl<'a, S: Signed> Neg for &'a $VecN<S> {
+        impl<'a, S: SignedNum> Neg for &'a $VecN<S> {
             type Output = $VecN<S>;
 
             fn neg(self) -> Self::Output {
