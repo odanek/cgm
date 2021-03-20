@@ -84,27 +84,166 @@ impl Num for isize {}
 impl Num for f32 {}
 impl Num for f64 {}
 
-pub trait SignedNum: Num + Neg<Output = Self> {}
+pub trait SignedNum: Num + Neg<Output = Self> {
+    fn abs(self) -> Self;
+}
 
-impl SignedNum for i8 {}
-impl SignedNum for i16 {}
-impl SignedNum for i32 {}
-impl SignedNum for i64 {}
-impl SignedNum for f32 {}
-impl SignedNum for f64 {}
+impl SignedNum for i8 {
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+}
+impl SignedNum for i16 {
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+}
+impl SignedNum for i32 {
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+}
+impl SignedNum for i64 {
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+}
+impl SignedNum for f32 {
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+}
+impl SignedNum for f64 {
+    #[inline]
+    fn abs(self) -> Self {
+        self.abs()
+    }
+}
 
-pub trait Float: Num {
+pub trait Float: SignedNum {
+    const RAD_FULL_TURN: Self;
+    const RAD_HALF_TURN: Self;
+    const DEG_FULL_TURN: Self;
+    const DEG_HALF_TURN: Self;    
+
     fn sqrt(self) -> Self;
+    fn round(self) -> Self;
+    fn trunc(self) -> Self;
+    fn fract(self) -> Self;
+    fn sin(self) -> Self;
+    fn cos(self) -> Self;
+    fn tan(self) -> Self;
+    fn asin(self) -> Self;
+    fn acos(self) -> Self;
+    fn atan(self) -> Self;
+    fn atan2(self, other: Self) -> Self;
 }
 
 impl Float for f32 {
+    const RAD_FULL_TURN: Self = 2.0 * std::f32::consts::PI;
+    const RAD_HALF_TURN: Self = std::f32::consts::PI;
+    const DEG_FULL_TURN: Self = 360.0;
+    const DEG_HALF_TURN: Self = 180.0;    
+
+    #[inline]
     fn sqrt(self) -> Self {
         self.sqrt()
+    }
+    #[inline]
+    fn round(self) -> Self {
+        self.round()
+    }
+    #[inline]
+    fn trunc(self) -> Self {
+        self.trunc()
+    }
+    #[inline]
+    fn fract(self) -> Self {
+        self.fract()
+    }
+    #[inline]
+    fn sin(self) -> Self {
+        self.sin()
+    }
+    #[inline]
+    fn cos(self) -> Self {
+        self.cos()
+    }
+    #[inline]
+    fn tan(self) -> Self {
+        self.tan()
+    }
+    #[inline]
+    fn asin(self) -> Self {
+        self.asin()
+    }
+    #[inline]
+    fn acos(self) -> Self {
+        self.acos()
+    }
+    #[inline]
+    fn atan(self) -> Self {
+        self.atan()
+    }
+    #[inline]
+    fn atan2(self, other: Self) -> Self {
+        self.atan2(other)
     }
 }
 
 impl Float for f64 {
+    const RAD_FULL_TURN: Self = 2.0 * std::f64::consts::PI;
+    const RAD_HALF_TURN: Self = std::f64::consts::PI;
+    const DEG_FULL_TURN: Self = 360.0;
+    const DEG_HALF_TURN: Self = 180.0;    
+
+    #[inline]
     fn sqrt(self) -> Self {
         self.sqrt()
+    }
+    #[inline]
+    fn round(self) -> Self {
+        self.round()
+    }
+    #[inline]
+    fn trunc(self) -> Self {
+        self.trunc()
+    }
+    #[inline]
+    fn fract(self) -> Self {
+        self.fract()
+    }
+    #[inline]
+    fn sin(self) -> Self {
+        self.sin()
+    }
+    #[inline]
+    fn cos(self) -> Self {
+        self.cos()
+    }
+    #[inline]
+    fn tan(self) -> Self {
+        self.tan()
+    }
+    #[inline]
+    fn asin(self) -> Self {
+        self.asin()
+    }
+    #[inline]
+    fn acos(self) -> Self {
+        self.acos()
+    }
+    #[inline]
+    fn atan(self) -> Self {
+        self.atan()
+    }
+    #[inline]
+    fn atan2(self, other: Self) -> Self {
+        self.atan2(other)
     }
 }

@@ -1,7 +1,16 @@
-use crate::{Float, One, Rad};
+use std::ops::{Add, Div, Mul, Sub};
 
-pub trait VectorSpace: Copy + Clone {
-    type Scalar;
+use crate::{Angle, Float, Num, One, Rad, Zero};
+
+pub trait VectorSpace: Copy + Clone
+where 
+    Self: Zero,
+    Self: Add<Self, Output = Self>,
+    Self: Sub<Self, Output = Self>,
+    Self: Mul<<Self as VectorSpace>::Scalar, Output = Self>,
+    Self: Div<<Self as VectorSpace>::Scalar, Output = Self>,
+{
+    type Scalar: Num;
 }
 
 pub trait MetricSpace: Sized {
@@ -13,7 +22,7 @@ pub trait MetricSpace: Sized {
     where
         Self::Metric: Float,
     {
-        Self::distance2(self, other).sqrt()
+        self.distance2(other).sqrt()
     }
 }
 
@@ -25,14 +34,14 @@ where
 
     #[inline]
     fn magnitude2(self) -> Self::Scalar {
-        Self::dot(self, self)
+        self.dot(self)
     }
 
     fn angle(self, other: Self) -> Rad<Self::Scalar>
     where
         Self::Scalar: Float,
     {
-        Rad((Self::dot(self, other) / (self.magnitude() * other.magnitude())).acos())
+        Rad::acos(self.dot(other) / (self.magnitude() * other.magnitude()))
     }
 
     #[inline]

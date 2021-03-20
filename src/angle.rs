@@ -15,17 +15,14 @@ where
 {
     type Unitless: Float;
 
-    const TURN: Self;
-    const TURN_2: Self;
-    const TURN_3: Self;
-    const TURN_4: Self;
-    const TURN_6: Self;
+    const FULL_TURN: Self;
+    const HALF_TURN: Self;
 
     #[inline]
     fn normalize(self) -> Self {
-        let rem = self % Self::TURN;
+        let rem = self % Self::FULL_TURN;
         if rem < <Self as Zero>::ZERO {
-            rem + Self::TURN
+            rem + Self::FULL_TURN
         } else {
             rem
         }
@@ -34,8 +31,8 @@ where
     #[inline]
     fn normalize_signed(self) -> Self {
         let rem = self.normalize();
-        if Self::TURN_2 < rem {
-            rem - Self::TURN
+        if Self::HALF_TURN < rem {
+            rem - Self::FULL_TURN
         } else {
             rem
         }
@@ -43,7 +40,7 @@ where
 
     #[inline]
     fn opposite(self) -> Self {
-        (self + Self::TURN_2).normalize()
+        (self + Self::HALF_TURN).normalize()
     }
 
     fn sin(self) -> Self::Unitless;
@@ -76,7 +73,7 @@ where
 {
     #[inline]
     fn from(rad: Rad<S>) -> Deg<S> {
-        Deg(rad.0 * (Deg::<S>::TURN_2).0 / (Rad::<S>::TURN_2).0)
+        Deg(rad.0 * <S as Float>::RAD_HALF_TURN / <S as Float>::DEG_HALF_TURN)
     }
 }
 
@@ -87,7 +84,7 @@ where
 {
     #[inline]
     fn from(deg: Deg<S>) -> Rad<S> {
-        Rad(deg.0 * (Rad::<S>::TURN_2).0 / (Deg::<S>::TURN_2).0)
+        Rad(deg.0 * <S as Float>::DEG_HALF_TURN / <S as Float>::RAD_HALF_TURN)
     }
 }
 
@@ -95,87 +92,168 @@ impl<S: Num> Zero for Rad<S> {
     const ZERO: Self = Rad(<S as Zero>::ZERO);
 }
 
-impl<S> Neg for Rad<S> where S: Neg<Output = Self> {
-    type Output = Rad<S>;
+impl<S: Float> Angle for Rad<S> {
+    type Unitless = S;
+
+    const FULL_TURN: Rad<S> = Rad(<S as Float>::RAD_FULL_TURN);
+    const HALF_TURN: Rad<S> = Rad(<S as Float>::RAD_HALF_TURN);
 
     #[inline]
-    fn neg(self) -> Rad<S> { Rad(-self.0) }
-}
-
-impl<'a, S> Neg for &'a Rad<S> where S: Neg<Output = Self> {
-    type Output = Rad<S>;
+    fn sin(self) -> Self::Unitless {
+        self.0.sin()
+    }
 
     #[inline]
-    fn neg(self) -> Rad<S> { Rad(-self.0) }
-}
+    fn cos(self) -> Self::Unitless {
+        self.0.cos()
+    }
 
-macro_rules! impl_radians {
-    ($Angle:ident<$S: ty>, $turn_2:expr) => {
-        impl Angle for $Angle<$S> {
-            type Unitless = $S;
-        
-            const TURN: $Angle<$S> = $Angle(2.0 * $turn_2);
-            const TURN_2: $Angle<$S> = $Angle($turn_2);
-            const TURN_3: $Angle<$S> = $Angle(2.0 * $turn_2 / 3.0);
-            const TURN_4: $Angle<$S> = $Angle($turn_2 / 2.0);
-            const TURN_6: $Angle<$S> = $Angle($turn_2 / 3.0);
-        
-            #[inline]
-            fn sin(self) -> Self::Unitless {
-                self.0.sin()
-            }
-        
-            #[inline]
-            fn cos(self) -> Self::Unitless {
-                self.0.cos()
-            }
-        
-            #[inline]
-            fn tan(self) -> Self::Unitless {
-                self.0.tan()
-            }
-        
-            #[inline]
-            fn asin(ratio: Self::Unitless) -> Self {
-                Rad(ratio.asin())
-            }
-        
-            #[inline]
-            fn acos(ratio: Self::Unitless) -> Self {
-                Rad(ratio.acos())
-            }
-        
-            #[inline]
-            fn atan(ratio: Self::Unitless) -> Self {
-                Rad(ratio.atan())
-            }
-        
-            #[inline]
-            fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
-                Rad(a.atan2(b))
-            }
-        }
-        
-        // impl_operator!(<S: Float>, Add<Rad<S>>, Rad<S>, {
-        //     fn add(lhs, rhs) -> Rad<S> { Rad(lhs.0 + rhs.0) }
-        // });
-        // impl_operator!(<S: Float>, Sub<Rad<S>>, Rad<S>, {
-        //     fn sub(lhs, rhs) -> Rad<S> { Rad(lhs.0 - rhs.0) }
-        // });
-        // impl_operator!(<S: Float>, Mul<S>, Rad<S>, {
-        //     fn mul(lhs, rhs) -> Rad<S> { Rad(lhs.0 * rhs) }
-        // });
-        // impl_operator!(<S: Float>, Div<Rad<S>>, Rad<S>, {
-        //     fn div(lhs, rhs) -> S { lhs.0 / rhs.0 }
-        // });
-        // impl_operator!(<S: Float>, Div<S>, Rad<S>, {
-        //     fn div(lhs, rhs) -> Rad<S> { Rad(lhs.0 / rhs) }
-        // });
-        // impl_operator!(<S: Float>, Rem<Rad<S>>, Rad<S>, {
-        //     fn rem(lhs, rhs) -> Rad<S> { Rad(lhs.0 % rhs.0) }
-        // });        
+    #[inline]
+    fn tan(self) -> Self::Unitless {
+        self.0.tan()
+    }
+
+    #[inline]
+    fn asin(ratio: Self::Unitless) -> Self {
+        Rad(ratio.asin())
+    }
+
+    #[inline]
+    fn acos(ratio: Self::Unitless) -> Self {
+        Rad(ratio.acos())
+    }
+
+    #[inline]
+    fn atan(ratio: Self::Unitless) -> Self {
+        Rad(ratio.atan())
+    }
+
+    #[inline]
+    fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
+        Rad(a.atan2(b))
     }
 }
 
-impl_radians!(Rad<f32>, std::f32::consts::PI);
-impl_radians!(Rad<f64>, std::f64::consts::PI);
+impl_operator!(<S: Float>, Add<Rad<S>>, Rad<S>, {
+    fn add(lhs, rhs) -> Rad<S> { Rad(lhs.0 + rhs.0) }
+});
+impl_operator!(<S: Float>, Sub<Rad<S>>, Rad<S>, {
+    fn sub(lhs, rhs) -> Rad<S> { Rad(lhs.0 - rhs.0) }
+});
+impl_operator!(<S: Float>, Mul<S>, Rad<S>, {
+    fn mul(lhs, rhs) -> Rad<S> { Rad(lhs.0 * rhs) }
+});
+impl_operator!(<S: Float>, Div<Rad<S>>, Rad<S>, {
+    fn div(lhs, rhs) -> S { lhs.0 / rhs.0 }
+});
+impl_operator!(<S: Float>, Div<S>, Rad<S>, {
+    fn div(lhs, rhs) -> Rad<S> { Rad(lhs.0 / rhs) }
+});
+impl_operator!(<S: Float>, Rem<Rad<S>>, Rad<S>, {
+    fn rem(lhs, rhs) -> Rad<S> { Rad(lhs.0 % rhs.0) }
+});
+
+impl<S: Float> Neg for Rad<S>
+{
+    type Output = Rad<S>;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        Rad(-self.0)
+    }
+}
+
+impl<'a, S: Float> Neg for &'a Rad<S>
+{
+    type Output = Rad<S>;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        Rad(-self.0)
+    }
+}
+
+impl<S: Num> Zero for Deg<S> {
+    const ZERO: Self = Deg(<S as Zero>::ZERO);
+}
+
+impl<S: Float> Angle for Deg<S> {
+    type Unitless = S;
+
+    const FULL_TURN: Deg<S> = Deg(<S as Float>::DEG_FULL_TURN);
+    const HALF_TURN: Deg<S> = Deg(<S as Float>::DEG_HALF_TURN);
+
+    #[inline]
+    fn sin(self) -> Self::Unitless {
+        self.0.sin()
+    }
+
+    #[inline]
+    fn cos(self) -> Self::Unitless {
+        self.0.cos()
+    }
+
+    #[inline]
+    fn tan(self) -> Self::Unitless {
+        self.0.tan()
+    }
+
+    #[inline]
+    fn asin(ratio: Self::Unitless) -> Self {
+        Deg(ratio.asin())
+    }
+
+    #[inline]
+    fn acos(ratio: Self::Unitless) -> Self {
+        Deg(ratio.acos())
+    }
+
+    #[inline]
+    fn atan(ratio: Self::Unitless) -> Self {
+        Deg(ratio.atan())
+    }
+
+    #[inline]
+    fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
+        Deg(a.atan2(b))
+    }
+}
+
+impl_operator!(<S: Float>, Add<Deg<S>>, Deg<S>, {
+    fn add(lhs, rhs) -> Deg<S> { Deg(lhs.0 + rhs.0) }
+});
+impl_operator!(<S: Float>, Sub<Deg<S>>, Deg<S>, {
+    fn sub(lhs, rhs) -> Deg<S> { Deg(lhs.0 - rhs.0) }
+});
+impl_operator!(<S: Float>, Mul<S>, Deg<S>, {
+    fn mul(lhs, rhs) -> Deg<S> { Deg(lhs.0 * rhs) }
+});
+impl_operator!(<S: Float>, Div<Deg<S>>, Deg<S>, {
+    fn div(lhs, rhs) -> S { lhs.0 / rhs.0 }
+});
+impl_operator!(<S: Float>, Div<S>, Deg<S>, {
+    fn div(lhs, rhs) -> Deg<S> { Deg(lhs.0 / rhs) }
+});
+impl_operator!(<S: Float>, Rem<Deg<S>>, Deg<S>, {
+    fn rem(lhs, rhs) -> Deg<S> { Deg(lhs.0 % rhs.0) }
+});
+
+impl<S: Float> Neg for Deg<S>
+{
+    type Output = Deg<S>;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        Deg(-self.0)
+    }
+}
+
+impl<'a, S: Float> Neg for &'a Deg<S>
+{
+    type Output = Deg<S>;
+
+    #[inline]
+    fn neg(self) -> Self::Output {
+        Deg(-self.0)
+    }
+}
