@@ -130,6 +130,7 @@ pub trait Float: SignedNum {
     const RAD_HALF_TURN: Self;
     const DEG_FULL_TURN: Self;
     const DEG_HALF_TURN: Self;    
+    const DEG_RAD_RATIO: Self;
 
     fn sqrt(self) -> Self;
     fn round(self) -> Self;
@@ -148,7 +149,8 @@ impl Float for f32 {
     const RAD_FULL_TURN: Self = 2.0 * std::f32::consts::PI;
     const RAD_HALF_TURN: Self = std::f32::consts::PI;
     const DEG_FULL_TURN: Self = 360.0;
-    const DEG_HALF_TURN: Self = 180.0;    
+    const DEG_HALF_TURN: Self = 180.0;
+    const DEG_RAD_RATIO: Self = 180.0 / std::f32::consts::PI;
 
     #[inline]
     fn sqrt(self) -> Self {
@@ -200,7 +202,8 @@ impl Float for f64 {
     const RAD_FULL_TURN: Self = 2.0 * std::f64::consts::PI;
     const RAD_HALF_TURN: Self = std::f64::consts::PI;
     const DEG_FULL_TURN: Self = 360.0;
-    const DEG_HALF_TURN: Self = 180.0;    
+    const DEG_HALF_TURN: Self = 180.0;
+    const DEG_RAD_RATIO: Self = 180.0 / std::f64::consts::PI;
 
     #[inline]
     fn sqrt(self) -> Self {

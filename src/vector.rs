@@ -2,17 +2,6 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use crate::num::{Num, One, SignedNum, Zero};
 
-pub trait Vector
-// where
-//     Self : Index<usize, Output = <Self as Vec>::Element>,
-//     Self : IndexMut<usize, Output = <Self as Vec>::Element>
-{
-    type Element: Copy;
-
-    fn len() -> usize;
-    // TODO product and sum
-}
-
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug, Default)]
 pub struct Vec1<S> {
@@ -56,15 +45,6 @@ macro_rules! impl_vector {
             const ZERO: $VecN<S> = $VecN { $($field: S::ZERO),+ };
         }
 
-        impl<S: Copy> Vector for $VecN<S> {
-            type Element = S;
-
-            #[inline]
-            fn len() -> usize {
-                $n
-            }
-        }
-
         impl_operator!(<S: Num>, Add<$VecN<S>>, $VecN<S>, {
             fn add(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field + rhs.$field),+ } }
         });
@@ -93,6 +73,7 @@ macro_rules! impl_vector {
         impl<S: SignedNum> Neg for $VecN<S> {
             type Output = $VecN<S>;
 
+            #[inline]
             fn neg(self) -> Self::Output {
                 $VecN { $($field: -self.$field),+ }
             }
@@ -101,6 +82,7 @@ macro_rules! impl_vector {
         impl<'a, S: SignedNum> Neg for &'a $VecN<S> {
             type Output = $VecN<S>;
 
+            #[inline]
             fn neg(self) -> Self::Output {
                 $VecN { $($field: -self.$field),+ }
             }
@@ -465,7 +447,7 @@ mod tests {
 
         #[test]
         fn test_mul() {
-            let a = Vec4::new(3.0, 4.0, 1.0, 2.0) * 2.0;
+            let a = Vec4::<f64>::new(3.0, 4.0, 1.0, 2.0) * 2.0;
             assert_eq!(a.x, 6.0);
             assert_eq!(a.y, 8.0);
             assert_eq!(a.z, 2.0);

@@ -73,7 +73,7 @@ where
 {
     #[inline]
     fn from(rad: Rad<S>) -> Deg<S> {
-        Deg(rad.0 * <S as Float>::RAD_HALF_TURN / <S as Float>::DEG_HALF_TURN)
+        Deg(rad.0 / <S as Float>::DEG_RAD_RATIO)
     }
 }
 
@@ -84,7 +84,7 @@ where
 {
     #[inline]
     fn from(deg: Deg<S>) -> Rad<S> {
-        Rad(deg.0 * <S as Float>::DEG_HALF_TURN / <S as Float>::RAD_HALF_TURN)
+        Rad(deg.0 * <S as Float>::DEG_RAD_RATIO)
     }
 }
 
@@ -185,37 +185,37 @@ impl<S: Float> Angle for Deg<S> {
 
     #[inline]
     fn sin(self) -> Self::Unitless {
-        self.0.sin()
+        Rad::from(self).sin()
     }
 
     #[inline]
     fn cos(self) -> Self::Unitless {
-        self.0.cos()
+        Rad::from(self).cos()
     }
 
     #[inline]
     fn tan(self) -> Self::Unitless {
-        self.0.tan()
+        Rad::from(self).tan()
     }
 
     #[inline]
     fn asin(ratio: Self::Unitless) -> Self {
-        Deg(ratio.asin())
+        Rad(ratio.asin()).into()
     }
 
     #[inline]
     fn acos(ratio: Self::Unitless) -> Self {
-        Deg(ratio.acos())
+        Rad(ratio.acos()).into()
     }
 
     #[inline]
     fn atan(ratio: Self::Unitless) -> Self {
-        Deg(ratio.atan())
+        Rad(ratio.atan()).into()
     }
 
     #[inline]
     fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
-        Deg(a.atan2(b))
+        Rad(a.atan2(b)).into()
     }
 }
 

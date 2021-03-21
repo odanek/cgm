@@ -6,6 +6,7 @@ macro_rules! impl_operator {
         impl<$S: $Constraint> $Op<$Rhs> for $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -15,6 +16,7 @@ macro_rules! impl_operator {
         impl<'a, $S: $Constraint> $Op<$Rhs> for &'a $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -28,6 +30,7 @@ macro_rules! impl_operator {
         impl<$S: $Constraint> $Op<$Rhs> for $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -37,6 +40,7 @@ macro_rules! impl_operator {
         impl<'a, $S: $Constraint> $Op<$Rhs> for &'a $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -46,6 +50,7 @@ macro_rules! impl_operator {
         impl<'a, $S: $Constraint> $Op<&'a $Rhs> for $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: &'a $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -55,6 +60,7 @@ macro_rules! impl_operator {
         impl<'a, 'b, $S: $Constraint> $Op<&'a $Rhs> for &'b $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: &'a $Rhs) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -68,6 +74,7 @@ macro_rules! impl_operator {
         impl $Op<$Rhs<$S>> for $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: $Rhs<$S>) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
@@ -77,6 +84,7 @@ macro_rules! impl_operator {
         impl<'a> $Op<&'a $Rhs<$S>> for $Lhs {
             type Output = $Out;
 
+            #[inline]
             fn $op(self, other: &'a $Rhs<$S>) -> Self::Output {
                 let ($lhs, $rhs) = (self, other);
                 $body
