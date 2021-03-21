@@ -21,7 +21,7 @@ where
     #[inline]
     fn normalize(self) -> Self {
         let rem = self % Self::FULL_TURN;
-        if rem < <Self as Zero>::ZERO {
+        if rem < Self::ZERO {
             rem + Self::FULL_TURN
         } else {
             rem
@@ -73,7 +73,7 @@ where
 {
     #[inline]
     fn from(rad: Rad<S>) -> Deg<S> {
-        Deg(rad.0 / <S as Float>::DEG_RAD_RATIO)
+        Deg(rad.0 / S::DEG_RAD_RATIO)
     }
 }
 
@@ -84,19 +84,19 @@ where
 {
     #[inline]
     fn from(deg: Deg<S>) -> Rad<S> {
-        Rad(deg.0 * <S as Float>::DEG_RAD_RATIO)
+        Rad(deg.0 * S::DEG_RAD_RATIO)
     }
 }
 
 impl<S: Num> Zero for Rad<S> {
-    const ZERO: Self = Rad(<S as Zero>::ZERO);
+    const ZERO: Self = Rad(S::ZERO);
 }
 
 impl<S: Float> Angle for Rad<S> {
     type Unitless = S;
 
-    const FULL_TURN: Rad<S> = Rad(<S as Float>::RAD_FULL_TURN);
-    const HALF_TURN: Rad<S> = Rad(<S as Float>::RAD_HALF_TURN);
+    const FULL_TURN: Rad<S> = Rad(S::RAD_FULL_TURN);
+    const HALF_TURN: Rad<S> = Rad(S::RAD_HALF_TURN);
 
     #[inline]
     fn sin(self) -> Self::Unitless {
@@ -174,14 +174,14 @@ impl<'a, S: Float> Neg for &'a Rad<S>
 }
 
 impl<S: Num> Zero for Deg<S> {
-    const ZERO: Self = Deg(<S as Zero>::ZERO);
+    const ZERO: Self = Deg(S::ZERO);
 }
 
 impl<S: Float> Angle for Deg<S> {
     type Unitless = S;
 
-    const FULL_TURN: Deg<S> = Deg(<S as Float>::DEG_FULL_TURN);
-    const HALF_TURN: Deg<S> = Deg(<S as Float>::DEG_HALF_TURN);
+    const FULL_TURN: Deg<S> = Deg(S::DEG_FULL_TURN);
+    const HALF_TURN: Deg<S> = Deg(S::DEG_HALF_TURN);
 
     #[inline]
     fn sin(self) -> Self::Unitless {

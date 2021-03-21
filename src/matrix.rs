@@ -1,6 +1,6 @@
 use std::ops;
 
-use crate::{Angle, Rad};
+use crate::{Angle, InnerSpace, Rad};
 
 use super::{Vec3, Vec4};
 
@@ -33,7 +33,7 @@ impl Mat4 {
         }
     }
 
-    pub fn vec_scale(vec: &Vec3<f32>) -> Mat4 {
+    pub fn vec_scale(vec: Vec3<f32>) -> Mat4 {
         Self::scale(vec.x, vec.y, vec.z)
     }
 
@@ -49,14 +49,14 @@ impl Mat4 {
         }
     }
 
-    pub fn vec_translate(vec: &Vec3<f32>) -> Mat4 {
+    pub fn vec_translate(vec: Vec3<f32>) -> Mat4 {
         Self::translate(vec.x, vec.y, vec.z)
     }
 
-    pub fn rotate(radians: Rad<f32>, axis: &Vec3<f32>) -> Mat4 {
-        let c = radians.cos();
+    pub fn rotate(angle: Rad<f32>, axis: Vec3<f32>) -> Mat4 {
+        let c = angle.cos();
         let mc = 1.0 - c;
-        let s = radians.sin();
+        let s = angle.sin();
 
         let x = axis.x;
         let y = axis.y;
@@ -73,9 +73,9 @@ impl Mat4 {
         }
     }
 
-    pub fn rotate_x(radians: Rad<f32>) -> Mat4 {
-        let s = radians.sin();
-        let c = radians.cos();
+    pub fn rotate_x(angle: Rad<f32>) -> Mat4 {
+        let s = angle.sin();
+        let c = angle.cos();
 
         Mat4 {
             #[cfg_attr(rustfmt, rustfmt::skip)]
@@ -88,9 +88,9 @@ impl Mat4 {
         }
     }
 
-    pub fn rotate_y(radians: Rad<f32>) -> Mat4 {
-        let s = radians.sin();
-        let c = radians.cos();
+    pub fn rotate_y(angle: Rad<f32>) -> Mat4 {
+        let s = angle.sin();
+        let c = angle.cos();
 
         Mat4 {
             #[cfg_attr(rustfmt, rustfmt::skip)]
@@ -103,9 +103,9 @@ impl Mat4 {
         }
     }
 
-    pub fn rotate_z(radians: Rad<f32>) -> Mat4 {
-        let s = radians.sin();
-        let c = radians.cos();
+    pub fn rotate_z(angle: Rad<f32>) -> Mat4 {
+        let s = angle.sin();
+        let c = angle.cos();
 
         Mat4 {
             #[cfg_attr(rustfmt, rustfmt::skip)]
@@ -150,21 +150,21 @@ impl Mat4 {
         }
     }
 
-    // pub fn look_at(eye: &Vec3<f32>, center: &Vec3<f32>, up: &Vec3<f32>) -> Mat4 {
-    //     let f = (center - eye).unit();
-    //     let s = f.cross(&up.unit());
-    //     let u = s.unit().cross(&f);
-    //     let m = Mat4 {
-    //         #[cfg_attr(rustfmt, rustfmt::skip)]
-    //         data: [
-    //             s.x, u.x, -f.x, 0.0,
-    //             s.y, u.y, -f.y, 0.0,
-    //             s.z, u.z, -f.z, 0.0,
-    //             0.0, 0.0, 0.0, 1.0
-    //         ]
-    //     };
-    //     m * (-eye).translation_mat()
-    // }
+    pub fn look_at(eye: Vec3<f32>, center: Vec3<f32>, up: Vec3<f32>) -> Mat4 {
+        let f = (center - eye).normalize();
+        let s = f.cross(up.normalize());
+        let u = s.normalize().cross(f);
+        let m = Mat4 {
+            #[cfg_attr(rustfmt, rustfmt::skip)]
+            data: [
+                s.x, u.x, -f.x, 0.0,
+                s.y, u.y, -f.y, 0.0,
+                s.z, u.z, -f.z, 0.0,
+                0.0, 0.0, 0.0, 1.0
+            ]
+        };
+        m * Mat4::vec_translate(-eye)
+    }
 
     pub fn transpose(&self) -> Mat4 {
         let data = &self.data;
