@@ -1,6 +1,11 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::num::{Num, One, SignedNum, Zero};
+use crate::{
+    angle::Angle,
+    num::{Num, SignedNum, Zero},
+    space::{InnerSpace, MetricSpace, VectorSpace},
+    Float, Rad,
+};
 
 #[repr(C)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug, Default)]
@@ -43,6 +48,19 @@ macro_rules! impl_vector {
 
         impl<S: Zero> Zero for $VecN<S> {
             const ZERO: $VecN<S> = $VecN { $($field: S::ZERO),+ };
+        }
+
+        impl<S: Num> VectorSpace for $VecN<S> {
+            type Scalar = S;
+        }
+
+        impl<S: Num> MetricSpace for $VecN<S> {
+            type Metric = S;
+
+            #[inline]
+            fn distance2(self, other: Self) -> S {
+                (other - self).magnitude2()
+            }
         }
 
         impl_operator!(<S: Num>, Add<$VecN<S>>, $VecN<S>, {
@@ -106,114 +124,171 @@ impl_vector!(Vec2 { x, y }, 2);
 impl_vector!(Vec3 { x, y, z }, 3);
 impl_vector!(Vec4 { x, y, z, w }, 4);
 
-impl<S: One> Vec1<S> {
-    pub const X: Vec1<S> = Vec1 { x: <S as One>::ONE };
+impl<S: Num> InnerSpace for Vec1<S> {
+    #[inline]
+    fn dot(self, other: Vec1<S>) -> S {
+        self.x * other.x
+    }
 }
 
-impl<S: One + Zero> Vec2<S> {
+impl<S: Num> InnerSpace for Vec2<S> {
+    #[inline]
+    fn dot(self, other: Vec2<S>) -> S {
+        (self.x * other.x) + (self.y * other.y)
+    }
+
+    #[inline]
+    fn angle(self, other: Vec2<S>) -> Rad<S>
+    where
+        S: Float,
+    {
+        Rad::atan2(Self::perp_dot(self, other), Self::dot(self, other))
+    }
+}
+
+impl<S: Num> InnerSpace for Vec3<S> {
+    #[inline]
+    fn dot(self, other: Vec3<S>) -> S {
+        (self.x * other.x) + (self.y * other.y) + (self.z * other.z)
+    }
+
+    #[inline]
+    fn angle(self, other: Vec3<S>) -> Rad<S>
+    where
+        S: Float,
+    {
+        Rad::atan2(self.cross(other).magnitude(), Self::dot(self, other))
+    }
+}
+
+impl<S: Num> InnerSpace for Vec4<S> {
+    #[inline]
+    fn dot(self, other: Vec4<S>) -> S {
+        (self.x * other.x) + (self.y * other.y) + (self.z * other.z) + (self.w * other.w)
+    }
+}
+
+impl<S: Num> Vec1<S> {
+    pub const X: Vec1<S> = Vec1 { x: S::ONE };
+
+    #[inline]
+    pub fn extend(self, y: S) -> Vec2<S> {
+        Vec2 { x: self.x, y }
+    }
+}
+
+impl<S: Num> Vec2<S> {
     pub const X: Vec2<S> = Vec2 {
-        x: <S as One>::ONE,
-        y: <S as Zero>::ZERO,
+        x: S::ONE,
+        y: S::ZERO,
     };
     pub const Y: Vec2<S> = Vec2 {
-        x: <S as Zero>::ZERO,
-        y: <S as One>::ONE,
+        x: S::ZERO,
+        y: S::ONE,
     };
+
+    #[inline]
+    pub fn perp_dot(self, other: Vec2<S>) -> S {
+        (self.x * other.y) - (self.y * other.x)
+    }
+
+    #[inline]
+    pub fn extend(self, z: S) -> Vec3<S> {
+        Vec3 {
+            x: self.x,
+            y: self.y,
+            z,
+        }
+    }
+
+    #[inline]
+    pub fn truncate(self) -> Vec1<S> {
+        Vec1 { x: self.x }
+    }
 }
 
-impl<S: One + Zero> Vec3<S> {
+impl<S: Num> Vec3<S> {
     pub const X: Vec3<S> = Vec3 {
-        x: <S as One>::ONE,
-        y: <S as Zero>::ZERO,
-        z: <S as Zero>::ZERO,
+        x: S::ONE,
+        y: S::ZERO,
+        z: S::ZERO,
     };
     pub const Y: Vec3<S> = Vec3 {
-        x: <S as Zero>::ZERO,
-        y: <S as One>::ONE,
-        z: <S as Zero>::ZERO,
+        x: S::ZERO,
+        y: S::ONE,
+        z: S::ZERO,
     };
     pub const Z: Vec3<S> = Vec3 {
-        x: <S as Zero>::ZERO,
-        y: <S as Zero>::ZERO,
-        z: <S as One>::ONE,
+        x: S::ZERO,
+        y: S::ZERO,
+        z: S::ONE,
     };
+
+    #[inline]
+    pub fn cross(self, other: Vec3<S>) -> Vec3<S> {
+        Vec3 {
+            x: (self.y * other.z) - (self.z * other.y),
+            y: (self.z * other.x) - (self.x * other.z),
+            z: (self.x * other.y) - (self.y * other.x),
+        }
+    }
+
+    #[inline]
+    pub fn extend(self, w: S) -> Vec4<S> {
+        Vec4 {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+            w,
+        }
+    }
+
+    #[inline]
+    pub fn truncate(self) -> Vec2<S> {
+        Vec2 {
+            x: self.x,
+            y: self.y,
+        }
+    }
 }
 
-impl<S: One + Zero> Vec4<S> {
+impl<S: Num> Vec4<S> {
     pub const X: Vec4<S> = Vec4 {
-        x: <S as One>::ONE,
-        y: <S as Zero>::ZERO,
-        z: <S as Zero>::ZERO,
-        w: <S as One>::ONE,
+        x: S::ONE,
+        y: S::ZERO,
+        z: S::ZERO,
+        w: S::ZERO,
     };
     pub const Y: Vec4<S> = Vec4 {
-        x: <S as Zero>::ZERO,
-        y: <S as One>::ONE,
-        z: <S as Zero>::ZERO,
-        w: <S as One>::ONE,
+        x: S::ZERO,
+        y: S::ONE,
+        z: S::ZERO,
+        w: S::ZERO,
     };
     pub const Z: Vec4<S> = Vec4 {
-        x: <S as Zero>::ZERO,
-        y: <S as Zero>::ZERO,
-        z: <S as One>::ONE,
-        w: <S as One>::ONE,
+        x: S::ZERO,
+        y: S::ZERO,
+        z: S::ONE,
+        w: S::ZERO,
     };
     pub const W: Vec4<S> = Vec4 {
-        x: <S as Zero>::ZERO,
-        y: <S as Zero>::ZERO,
-        z: <S as Zero>::ZERO,
-        w: <S as One>::ONE,
+        x: S::ZERO,
+        y: S::ZERO,
+        z: S::ZERO,
+        w: S::ONE,
     };
+
+    #[inline]
+    pub fn truncate(self) -> Vec3<S> {
+        Vec3 {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+        }
+    }
 }
 
-// impl<S> Vec2<S> where S: Num {
-//     pub fn dot(&self, rhs: &Vec2<S>) -> S {
-//         self.x * rhs.x + self.y * rhs.y
-//     }
-// }
-
-// impl<S> Vec2<S> where S: Float {
-//     pub fn length(&self) -> S {
-//         (self.x * self.x + self.y * self.y).sqrt()
-//     }
-
-//     pub fn unit(&self) -> Vec2<S> {
-//         self / self.length()
-//     }
-
-//     // pub fn angle(&self) -> Rad {
-//     // self.y.atan2(self.x)
-//     // }
-// }
-
 // impl Vec3 {
-//     pub fn length(&self) -> f32 {
-//         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
-//     }
-
-//     pub fn dot(&self, rhs: &Vec3) -> f32 {
-//         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
-//     }
-
-//     pub fn cross(&self, rhs: &Vec3) -> Vec3 {
-//         let x = self.x;
-//         let y = self.y;
-//         let z = self.z;
-//         let rx = rhs.x;
-//         let ry = rhs.y;
-//         let rz = rhs.z;
-
-//         Vec3 {
-//             x: y * rz - z * ry,
-//             y: z * rx - x * rz,
-//             z: x * ry - y * rx,
-//         }
-//     }
-
-//     pub fn unit(&self) -> Vec3 {
-//         self / self.length()
-//     }
-
 //     pub fn translation_mat(&self) -> Mat4 {
 //         Mat4::vec_translate(self)
 //     }
@@ -242,11 +317,6 @@ impl<S: One + Zero> Vec4<S> {
 //             z: h.z / h.w,
 //         }
 //     }
-
-//     // pub fn angle(&self) -> f32 {
-//     // self.y.atan2(self.x)
-//     // }
-// }
 
 #[cfg(test)]
 mod tests {
@@ -471,6 +541,6 @@ mod tests {
             assert_eq!(b.y, 4.0);
             assert_eq!(b.z, 1.0);
             assert_eq!(b.w, 0.5);
-        }        
+        }
     }
 }
