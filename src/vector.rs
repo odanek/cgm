@@ -250,6 +250,25 @@ impl<S: Num> Vec3<S> {
             y: self.y,
         }
     }
+
+    #[inline]
+    pub fn from_homogeneous(v: Vec4<S>) -> Vec3<S> {
+        Vec3 {
+            x: v.x / v.w,
+            y: v.y / v.w,
+            z: v.z / v.w,
+        }
+    }
+
+    #[inline]
+    pub fn to_homogeneous(self) -> Vec4<S> {
+        Vec4 {
+            x: self.x,
+            y: self.y,
+            z: self.z,
+            w: S::ONE,
+        }
+    }
 }
 
 impl<S: Num> Vec4<S> {
@@ -287,36 +306,6 @@ impl<S: Num> Vec4<S> {
         }
     }
 }
-
-// impl Vec3 {
-//     pub fn translation_mat(&self) -> Mat4 {
-//         Mat4::vec_translate(self)
-//     }
-
-//     pub fn scale_mat(&self) -> Mat4 {
-//         Mat4::vec_scale(self)
-//     }
-
-//     pub fn rotation_mat(&self, radians: Rad) -> Mat4 {
-//         Mat4::rotate(radians, self)
-//     }
-
-//     pub fn to_homogenous(&self) -> Vec4 {
-//         Vec4 {
-//             x: self.x,
-//             y: self.y,
-//             z: self.z,
-//             w: 1.0,
-//         }
-//     }
-
-//     pub fn from_homogenous(h: &Vec4) -> Vec3 {
-//         Vec3 {
-//             x: h.x / h.w,
-//             y: h.y / h.w,
-//             z: h.z / h.w,
-//         }
-//     }
 
 #[cfg(test)]
 mod tests {
