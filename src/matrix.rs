@@ -1,306 +1,324 @@
 use std::ops;
 
-use crate::{Angle, InnerSpace, Rad};
+use crate::{Angle, InnerSpace, Rad, Vec2};
 
 use super::{Vec3, Vec4};
 
-#[repr(transparent)]
-#[derive(Clone, Copy, Debug)]
-pub struct Mat4 {
-    pub data: [f32; 16]
+#[repr(C)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Mat2<S> {
+    pub x: Vec2<S>,
+    pub y: Vec2<S>,
 }
 
-impl Mat4 {
-    #[cfg_attr(rustfmt, rustfmt::skip)]
-    pub const IDENT: Mat4 = Mat4 {
-        data: [
-            1.0, 0.0, 0.0, 0.0, 
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0, 1.0
-        ]
-    };
-    
-    pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data: [
-                x, 0.0, 0.0, 0.0,
-                0.0, y, 0.0, 0.0,
-                0.0, 0.0, z, 0.0,
-                0.0, 0.0, 0.0, 1.0
-            ]
-        }
-    }
-
-    pub fn vec_scale(vec: Vec3<f32>) -> Mat4 {
-        Self::scale(vec.x, vec.y, vec.z)
-    }
-
-    pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data: [
-                1.0, 0.0, 0.0, 0.0, 
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                x, y, z, 1.0
-            ]            
-        }
-    }
-
-    pub fn vec_translate(vec: Vec3<f32>) -> Mat4 {
-        Self::translate(vec.x, vec.y, vec.z)
-    }
-
-    pub fn rotate(angle: Rad<f32>, axis: Vec3<f32>) -> Mat4 {
-        let c = angle.cos();
-        let mc = 1.0 - c;
-        let s = angle.sin();
-
-        let x = axis.x;
-        let y = axis.y;
-        let z = axis.z;
-
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data: [
-                x * x * mc + c, x * y * mc + z * s, x * z * mc - y * s, 0.0,
-                x * y * mc - z * s, y * y * mc + c, y * z * mc + x * s, 0.0,
-                x * z * mc + y * s, y * z * mc - x * s, z * z * mc + c, 0.0,
-                0.0, 0.0, 0.0, 1.0
-            ]
-        }
-    }
-
-    pub fn rotate_x(angle: Rad<f32>) -> Mat4 {
-        let s = angle.sin();
-        let c = angle.cos();
-
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data:[
-                1.0, 0.0, 0.0, 0.0,
-                0.0, c, s, 0.0,
-                0.0, -s, c, 0.0,
-                0.0, 0.0, 0.0, 1.0
-            ]
-        }
-    }
-
-    pub fn rotate_y(angle: Rad<f32>) -> Mat4 {
-        let s = angle.sin();
-        let c = angle.cos();
-
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data:[
-                c, 0.0, -s, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                s, 0.0, c, 0.0,
-                0.0, 0.0, 0.0, 1.0
-            ]
-        }
-    }
-
-    pub fn rotate_z(angle: Rad<f32>) -> Mat4 {
-        let s = angle.sin();
-        let c = angle.cos();
-
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data:[
-                c, s, 0.0, 0.0,
-                -s, c, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0
-            ]
-        }
-    }
-
-    pub fn perspective(fov: Rad<f32>, aspect: f32, near_clip: f32, far_clip: f32) -> Mat4 {
-        let half_fov = fov.0 / 2.0;
-        let f = half_fov.cos() / half_fov.sin();
-        let d = far_clip - near_clip;
-
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data: [
-                f / aspect, 0.0, 0.0, 0.0,
-                0.0, -f, 0.0, 0.0,
-                0.0, 0.0, -far_clip / d, -1.0,
-                0.0, 0.0, -(far_clip * near_clip) / d, 0.0
-            ]
-        }
-    }
-
-    pub fn ortho(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) -> Mat4 {
-        let x = right - left;
-        let y= top - bottom;
-        let z= far - near;
-
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data: [
-                2.0 / x, 0.0, 0.0, 0.0,
-                0.0, 2.0 / y, 0.0, 0.0,
-                0.0, 0.0, -2.0 / z, 0.0,
-                (left + right) / -x, (bottom + top) / -y, (near + far) / -z, 1.0
-            ]
-        }
-    }
-
-    pub fn look_at(eye: Vec3<f32>, center: Vec3<f32>, up: Vec3<f32>) -> Mat4 {
-        let f = (center - eye).normalize();
-        let s = f.cross(up.normalize());
-        let u = s.normalize().cross(f);
-        let m = Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data: [
-                s.x, u.x, -f.x, 0.0,
-                s.y, u.y, -f.y, 0.0,
-                s.z, u.z, -f.z, 0.0,
-                0.0, 0.0, 0.0, 1.0
-            ]
-        };
-        m * Mat4::vec_translate(-eye)
-    }
-
-    pub fn transpose(&self) -> Mat4 {
-        let data = &self.data;
-
-        Mat4 {
-            #[cfg_attr(rustfmt, rustfmt::skip)]
-            data: [
-                data[0], data[4], data[8], data[12],
-                data[1], data[5], data[9], data[13],
-                data[2], data[6], data[10], data[14],
-                data[3], data[7], data[11], data[15]
-            ]
-        }
-    }
+#[repr(C)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Mat3<S> {
+    pub x: Vec3<S>,
+    pub y: Vec3<S>,
+    pub z: Vec3<S>,
 }
 
-impl ops::Add<Mat4> for Mat4 {
-    type Output = Mat4;
-
-    fn add(self, rhs: Mat4) -> Self::Output {
-        Mat4 {
-            data: [
-                self.data[0] + rhs.data[0],
-                self.data[1] + rhs.data[1],
-                self.data[2] + rhs.data[2],
-                self.data[3] + rhs.data[3],
-                self.data[4] + rhs.data[4],
-                self.data[5] + rhs.data[5],
-                self.data[6] + rhs.data[6],
-                self.data[7] + rhs.data[7],
-                self.data[8] + rhs.data[8],
-                self.data[9] + rhs.data[9],
-                self.data[10] + rhs.data[10],
-                self.data[11] + rhs.data[11],
-                self.data[12] + rhs.data[12],
-                self.data[13] + rhs.data[13],
-                self.data[14] + rhs.data[14],
-                self.data[15] + rhs.data[15],
-            ]
-        }
-    }
+#[repr(C)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Mat4<S> {
+    pub x: Vec4<S>,
+    pub y: Vec4<S>,
+    pub z: Vec4<S>,
+    pub w: Vec4<S>,
 }
 
-impl ops::Mul<Mat4> for Mat4 {
-    type Output = Mat4;
+// impl Mat4 {
+//     #[cfg_attr(rustfmt, rustfmt::skip)]
+//     pub const IDENT: Mat4 = Mat4 {
+//         data: [
+//             1.0, 0.0, 0.0, 0.0,
+//             0.0, 1.0, 0.0, 0.0,
+//             0.0, 0.0, 1.0, 0.0,
+//             0.0, 0.0, 0.0, 1.0
+//         ]
+//     };
 
-    fn mul(self, rhs: Mat4) -> Self::Output {
-        &self * &rhs
-    }
-}
+//     pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data: [
+//                 x, 0.0, 0.0, 0.0,
+//                 0.0, y, 0.0, 0.0,
+//                 0.0, 0.0, z, 0.0,
+//                 0.0, 0.0, 0.0, 1.0
+//             ]
+//         }
+//     }
 
-impl ops::Mul<&Mat4> for Mat4 {
-    type Output = Mat4;
+//     pub fn vec_scale(vec: Vec3<f32>) -> Mat4 {
+//         Self::scale(vec.x, vec.y, vec.z)
+//     }
 
-    fn mul(self, rhs: &Mat4) -> Self::Output {
-        &self * rhs
-    }
-}
+//     pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data: [
+//                 1.0, 0.0, 0.0, 0.0,
+//                 0.0, 1.0, 0.0, 0.0,
+//                 0.0, 0.0, 1.0, 0.0,
+//                 x, y, z, 1.0
+//             ]
+//         }
+//     }
 
-impl ops::Mul<Mat4> for &Mat4 {
-    type Output = Mat4;
+//     pub fn vec_translate(vec: Vec3<f32>) -> Mat4 {
+//         Self::translate(vec.x, vec.y, vec.z)
+//     }
 
-    fn mul(self, rhs: Mat4) -> Self::Output {
-        self * &rhs
-    }
-}
+//     pub fn rotate(angle: Rad<f32>, axis: Vec3<f32>) -> Mat4 {
+//         let c = angle.cos();
+//         let mc = 1.0 - c;
+//         let s = angle.sin();
 
-impl ops::Mul<&Mat4> for &Mat4 {
-    type Output = Mat4;
+//         let x = axis.x;
+//         let y = axis.y;
+//         let z = axis.z;
 
-    fn mul(self, rhs: &Mat4) -> Self::Output {
-        let mut data: [f32; 16] = [0f32; 16]; // TODO Not necessary
-        let mut index = 0usize;
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data: [
+//                 x * x * mc + c, x * y * mc + z * s, x * z * mc - y * s, 0.0,
+//                 x * y * mc - z * s, y * y * mc + c, y * z * mc + x * s, 0.0,
+//                 x * z * mc + y * s, y * z * mc - x * s, z * z * mc + c, 0.0,
+//                 0.0, 0.0, 0.0, 1.0
+//             ]
+//         }
+//     }
 
-        for column in 0..4 {
-            for row in 0..4 {
-                let mut left = row;
-                let mut right = column * 4;
-                let mut sum = 0f32;
+//     pub fn rotate_x(angle: Rad<f32>) -> Mat4 {
+//         let s = angle.sin();
+//         let c = angle.cos();
 
-                for _ in 0..4 {
-                    sum += self.data[left] * rhs.data[right];
-                    left += 4;
-                    right += 1;
-                }
-                data[index] = sum;
-                index += 1;
-            }
-        }
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data:[
+//                 1.0, 0.0, 0.0, 0.0,
+//                 0.0, c, s, 0.0,
+//                 0.0, -s, c, 0.0,
+//                 0.0, 0.0, 0.0, 1.0
+//             ]
+//         }
+//     }
 
-        Mat4 {
-            data
-        }
-    }
-}
+//     pub fn rotate_y(angle: Rad<f32>) -> Mat4 {
+//         let s = angle.sin();
+//         let c = angle.cos();
 
-impl ops::Mul<Vec4<f32>> for Mat4 {
-    type Output = Vec4<f32>;
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data:[
+//                 c, 0.0, -s, 0.0,
+//                 0.0, 1.0, 0.0, 0.0,
+//                 s, 0.0, c, 0.0,
+//                 0.0, 0.0, 0.0, 1.0
+//             ]
+//         }
+//     }
 
-    fn mul(self, rhs: Vec4<f32>) -> Self::Output {
-        &self * &rhs
-    }
-}
+//     pub fn rotate_z(angle: Rad<f32>) -> Mat4 {
+//         let s = angle.sin();
+//         let c = angle.cos();
 
-impl ops::Mul<&Vec4<f32>> for Mat4 {
-    type Output = Vec4<f32>;
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data:[
+//                 c, s, 0.0, 0.0,
+//                 -s, c, 0.0, 0.0,
+//                 0.0, 0.0, 1.0, 0.0,
+//                 0.0, 0.0, 0.0, 1.0
+//             ]
+//         }
+//     }
 
-    fn mul(self, rhs: &Vec4<f32>) -> Self::Output {
-        &self * rhs
-    }
-}
+//     pub fn perspective(fov: Rad<f32>, aspect: f32, near_clip: f32, far_clip: f32) -> Mat4 {
+//         let half_fov = fov.0 / 2.0;
+//         let f = half_fov.cos() / half_fov.sin();
+//         let d = far_clip - near_clip;
 
-impl ops::Mul<Vec4<f32>> for &Mat4 {
-    type Output = Vec4<f32>;
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data: [
+//                 f / aspect, 0.0, 0.0, 0.0,
+//                 0.0, -f, 0.0, 0.0,
+//                 0.0, 0.0, -far_clip / d, -1.0,
+//                 0.0, 0.0, -(far_clip * near_clip) / d, 0.0
+//             ]
+//         }
+//     }
 
-    fn mul(self, rhs: Vec4<f32>) -> Self::Output {
-        self * &rhs
-    }
-}
+//     pub fn ortho(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) -> Mat4 {
+//         let x = right - left;
+//         let y= top - bottom;
+//         let z= far - near;
 
-impl ops::Mul<&Vec4<f32>> for &Mat4 {
-    type Output = Vec4<f32>;
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data: [
+//                 2.0 / x, 0.0, 0.0, 0.0,
+//                 0.0, 2.0 / y, 0.0, 0.0,
+//                 0.0, 0.0, -2.0 / z, 0.0,
+//                 (left + right) / -x, (bottom + top) / -y, (near + far) / -z, 1.0
+//             ]
+//         }
+//     }
 
-    fn mul(self, rhs: &Vec4<f32>) -> Self::Output {
-        let m = &self.data;
-        let x = rhs.x;
-        let y = rhs.y;
-        let z = rhs.z;
-        let w = rhs.w;
+//     pub fn look_at(eye: Vec3<f32>, center: Vec3<f32>, up: Vec3<f32>) -> Mat4 {
+//         let f = (center - eye).normalize();
+//         let s = f.cross(up.normalize());
+//         let u = s.normalize().cross(f);
+//         let m = Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data: [
+//                 s.x, u.x, -f.x, 0.0,
+//                 s.y, u.y, -f.y, 0.0,
+//                 s.z, u.z, -f.z, 0.0,
+//                 0.0, 0.0, 0.0, 1.0
+//             ]
+//         };
+//         m * Mat4::vec_translate(-eye)
+//     }
 
-        #[cfg_attr(rustfmt, rustfmt::skip)]
-        Vec4::new(
-            m[0] * x + m[4] * y + m[8] * z + m[12] * w,
-            m[1] * x + m[5] * y + m[9] * z + m[13] * w,
-            m[2] * x + m[6] * y + m[10] * z + m[14] * w,
-            m[3] * x + m[7] * y + m[11] * z + m[15] * w,
-        )
-    }
-}
+//     pub fn transpose(&self) -> Mat4 {
+//         let data = &self.data;
+
+//         Mat4 {
+//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             data: [
+//                 data[0], data[4], data[8], data[12],
+//                 data[1], data[5], data[9], data[13],
+//                 data[2], data[6], data[10], data[14],
+//                 data[3], data[7], data[11], data[15]
+//             ]
+//         }
+//     }
+// }
+
+// impl ops::Add<Mat4> for Mat4 {
+//     type Output = Mat4;
+
+//     fn add(self, rhs: Mat4) -> Self::Output {
+//         Mat4 {
+//             data: [
+//                 self.data[0] + rhs.data[0],
+//                 self.data[1] + rhs.data[1],
+//                 self.data[2] + rhs.data[2],
+//                 self.data[3] + rhs.data[3],
+//                 self.data[4] + rhs.data[4],
+//                 self.data[5] + rhs.data[5],
+//                 self.data[6] + rhs.data[6],
+//                 self.data[7] + rhs.data[7],
+//                 self.data[8] + rhs.data[8],
+//                 self.data[9] + rhs.data[9],
+//                 self.data[10] + rhs.data[10],
+//                 self.data[11] + rhs.data[11],
+//                 self.data[12] + rhs.data[12],
+//                 self.data[13] + rhs.data[13],
+//                 self.data[14] + rhs.data[14],
+//                 self.data[15] + rhs.data[15],
+//             ]
+//         }
+//     }
+// }
+
+// impl ops::Mul<Mat4> for Mat4 {
+//     type Output = Mat4;
+
+//     fn mul(self, rhs: Mat4) -> Self::Output {
+//         &self * &rhs
+//     }
+// }
+
+// impl ops::Mul<&Mat4> for Mat4 {
+//     type Output = Mat4;
+
+//     fn mul(self, rhs: &Mat4) -> Self::Output {
+//         &self * rhs
+//     }
+// }
+
+// impl ops::Mul<Mat4> for &Mat4 {
+//     type Output = Mat4;
+
+//     fn mul(self, rhs: Mat4) -> Self::Output {
+//         self * &rhs
+//     }
+// }
+
+// impl ops::Mul<&Mat4> for &Mat4 {
+//     type Output = Mat4;
+
+//     fn mul(self, rhs: &Mat4) -> Self::Output {
+//         let mut data: [f32; 16] = [0f32; 16]; // TODO Not necessary
+//         let mut index = 0usize;
+
+//         for column in 0..4 {
+//             for row in 0..4 {
+//                 let mut left = row;
+//                 let mut right = column * 4;
+//                 let mut sum = 0f32;
+
+//                 for _ in 0..4 {
+//                     sum += self.data[left] * rhs.data[right];
+//                     left += 4;
+//                     right += 1;
+//                 }
+//                 data[index] = sum;
+//                 index += 1;
+//             }
+//         }
+
+//         Mat4 {
+//             data
+//         }
+//     }
+// }
+
+// impl ops::Mul<Vec4<f32>> for Mat4 {
+//     type Output = Vec4<f32>;
+
+//     fn mul(self, rhs: Vec4<f32>) -> Self::Output {
+//         &self * &rhs
+//     }
+// }
+
+// impl ops::Mul<&Vec4<f32>> for Mat4 {
+//     type Output = Vec4<f32>;
+
+//     fn mul(self, rhs: &Vec4<f32>) -> Self::Output {
+//         &self * rhs
+//     }
+// }
+
+// impl ops::Mul<Vec4<f32>> for &Mat4 {
+//     type Output = Vec4<f32>;
+
+//     fn mul(self, rhs: Vec4<f32>) -> Self::Output {
+//         self * &rhs
+//     }
+// }
+
+// impl ops::Mul<&Vec4<f32>> for &Mat4 {
+//     type Output = Vec4<f32>;
+
+//     fn mul(self, rhs: &Vec4<f32>) -> Self::Output {
+//         let m = &self.data;
+//         let x = rhs.x;
+//         let y = rhs.y;
+//         let z = rhs.z;
+//         let w = rhs.w;
+
+//         #[cfg_attr(rustfmt, rustfmt::skip)]
+//         Vec4::new(
+//             m[0] * x + m[4] * y + m[8] * z + m[12] * w,
+//             m[1] * x + m[5] * y + m[9] * z + m[13] * w,
+//             m[2] * x + m[6] * y + m[10] * z + m[14] * w,
+//             m[3] * x + m[7] * y + m[11] * z + m[15] * w,
+//         )
+//     }
+// }
