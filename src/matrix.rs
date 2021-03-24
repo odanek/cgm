@@ -28,6 +28,63 @@ pub struct Mat4<S> {
     pub w: Vec4<S>,
 }
 
+impl<S> Mat2<S> {
+    #[inline]
+    pub const fn new(c0r0: S, c0r1: S, c1r0: S, c1r1: S) -> Mat2<S> {
+        Self::from_cols(Vec2::new(c0r0, c0r1), Vec2::new(c1r0, c1r1))
+    }
+
+    #[inline]
+    pub const fn from_cols(x: Vec2<S>, y: Vec2<S>) -> Mat2<S> {
+        Mat2 { x, y }
+    }
+}
+
+impl<S> Mat3<S> {
+    #[inline]
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    pub const fn new(
+        c0r0:S, c0r1:S, c0r2:S,
+        c1r0:S, c1r1:S, c1r2:S,
+        c2r0:S, c2r1:S, c2r2:S,
+    ) -> Mat3<S> {
+        Mat3::from_cols(
+            Vec3::new(c0r0, c0r1, c0r2),
+            Vec3::new(c1r0, c1r1, c1r2),
+            Vec3::new(c2r0, c2r1, c2r2),
+        )
+    }
+
+    /// Create a new matrix, providing columns.
+    #[inline]
+    pub const fn from_cols(x: Vec3<S>, y: Vec3<S>, z: Vec3<S>) -> Mat3<S> {
+        Mat3 { x, y, z }
+    }
+}
+
+impl<S> Mat4<S> {
+    #[inline]
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    pub const fn new(
+        c0r0: S, c0r1: S, c0r2: S, c0r3: S,
+        c1r0: S, c1r1: S, c1r2: S, c1r3: S,
+        c2r0: S, c2r1: S, c2r2: S, c2r3: S,
+        c3r0: S, c3r1: S, c3r2: S, c3r3: S,
+    ) -> Mat4<S>  {
+        Mat4::from_cols(
+            Vec4::new(c0r0, c0r1, c0r2, c0r3),
+            Vec4::new(c1r0, c1r1, c1r2, c1r3),
+            Vec4::new(c2r0, c2r1, c2r2, c2r3),
+            Vec4::new(c3r0, c3r1, c3r2, c3r3),
+        )
+    }
+
+    #[inline]
+    pub const fn from_cols(x: Vec4<S>, y: Vec4<S>, z: Vec4<S>, w: Vec4<S>) -> Mat4<S> {
+        Mat4 { x, y, z, w }
+    }
+}
+
 // impl Mat4 {
 //     #[cfg_attr(rustfmt, rustfmt::skip)]
 //     pub const IDENT: Mat4 = Mat4 {
