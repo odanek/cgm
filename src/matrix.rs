@@ -1,18 +1,14 @@
-use std::ops;
-
-use crate::{Angle, InnerSpace, Rad, Vec2};
-
-use super::{Vec3, Vec4};
+use crate::{Vec2, Vec3, Vec4, Zero};
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
 pub struct Mat2<S> {
     pub x: Vec2<S>,
     pub y: Vec2<S>,
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
 pub struct Mat3<S> {
     pub x: Vec3<S>,
     pub y: Vec3<S>,
@@ -20,12 +16,16 @@ pub struct Mat3<S> {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
 pub struct Mat4<S> {
     pub x: Vec4<S>,
     pub y: Vec4<S>,
     pub z: Vec4<S>,
     pub w: Vec4<S>,
+}
+
+impl<S: Zero> Zero for Mat2<S> {
+    const ZERO: Mat2<S> = Mat2::from_cols(Vec2::ZERO, Vec2::ZERO);
 }
 
 impl<S> Mat2<S> {
@@ -38,6 +38,10 @@ impl<S> Mat2<S> {
     pub const fn from_cols(x: Vec2<S>, y: Vec2<S>) -> Mat2<S> {
         Mat2 { x, y }
     }
+}
+
+impl<S: Zero> Zero for Mat3<S> {
+    const ZERO: Mat3<S> = Mat3::from_cols(Vec3::ZERO, Vec3::ZERO, Vec3::ZERO);
 }
 
 impl<S> Mat3<S> {
@@ -60,6 +64,10 @@ impl<S> Mat3<S> {
     pub const fn from_cols(x: Vec3<S>, y: Vec3<S>, z: Vec3<S>) -> Mat3<S> {
         Mat3 { x, y, z }
     }
+}
+
+impl<S: Zero> Zero for Mat4<S> {
+    const ZERO: Mat4<S> = Mat4::from_cols(Vec4::ZERO, Vec4::ZERO, Vec4::ZERO, Vec4::ZERO);
 }
 
 impl<S> Mat4<S> {

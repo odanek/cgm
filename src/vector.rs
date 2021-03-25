@@ -8,20 +8,20 @@ use crate::{
 };
 
 #[repr(C)]
-#[derive(Eq, PartialEq, Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Vec1<S> {
     pub x: S,
 }
 
 #[repr(C)]
-#[derive(Eq, PartialEq, Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Vec2<S> {
     pub x: S,
     pub y: S,
 }
 
 #[repr(C)]
-#[derive(Eq, PartialEq, Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Vec3<S> {
     pub x: S,
     pub y: S,
@@ -29,7 +29,7 @@ pub struct Vec3<S> {
 }
 
 #[repr(C)]
-#[derive(Eq, PartialEq, Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct Vec4<S> {
     pub x: S,
     pub y: S,
@@ -446,7 +446,7 @@ mod tests {
             assert_eq!(a.x, 6.0);
             assert_eq!(a.y, 8.0);
             assert_eq!(a.z, 2.0);
-            let b = 2.0 * Vec3::<f64>::new(3.0, 4.0, 1.0);
+            let b = 2.0f64 * Vec3::new(3.0, 4.0, 1.0);
             assert_eq!(b.x, 6.0);
             assert_eq!(b.y, 8.0);
             assert_eq!(b.z, 2.0);
@@ -458,7 +458,7 @@ mod tests {
             assert_eq!(a.x, 2.0);
             assert_eq!(a.y, 3.0);
             assert_eq!(a.z, 1.0);
-            let b = 4.0 / Vec3::<f64>::new(2.0, 1.0, 4.0);
+            let b = 4.0f64 / Vec3::new(2.0, 1.0, 4.0);
             assert_eq!(b.x, 2.0);
             assert_eq!(b.y, 4.0);
             assert_eq!(b.z, 1.0);
@@ -506,12 +506,12 @@ mod tests {
 
         #[test]
         fn test_mul() {
-            let a = Vec4::<f64>::new(3.0, 4.0, 1.0, 2.0) * 2.0;
+            let a = Vec4::new(3.0, 4.0, 1.0, 2.0) * 2.0;
             assert_eq!(a.x, 6.0);
             assert_eq!(a.y, 8.0);
             assert_eq!(a.z, 2.0);
             assert_eq!(a.w, 4.0);
-            let b = 2.0 * Vec4::<f64>::new(3.0, 4.0, 1.0, 2.0);
+            let b = 2.0f64 * Vec4::new(3.0, 4.0, 1.0, 2.0);
             assert_eq!(b.x, 6.0);
             assert_eq!(b.y, 8.0);
             assert_eq!(b.z, 2.0);
@@ -525,7 +525,7 @@ mod tests {
             assert_eq!(a.y, 3.0);
             assert_eq!(a.z, 1.0);
             assert_eq!(a.w, 4.0);
-            let b = 4.0 / Vec4::<f64>::new(2.0, 1.0, 4.0, 8.0);
+            let b = 4.0f64 / Vec4::new(2.0, 1.0, 4.0, 8.0);
             assert_eq!(b.x, 2.0);
             assert_eq!(b.y, 4.0);
             assert_eq!(b.z, 1.0);
