@@ -89,6 +89,6 @@ macro_rules! impl_operator {
                 let ($lhs, $rhs) = (self, other);
                 $body
             }
-        }       
+        }
     };
 }

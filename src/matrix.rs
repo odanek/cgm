@@ -1,4 +1,4 @@
-use crate::{Vec2, Vec3, Vec4, Zero};
+use crate::{One, Vec2, Vec3, Vec4, Zero};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -24,6 +24,10 @@ pub struct Mat4<S> {
     pub w: Vec4<S>,
 }
 
+impl<S: Zero + One> Mat2<S> {
+    pub const IDENTITY: Mat2<S> = Mat2::from_cols(Vec2::X, Vec2::Y);
+}
+
 impl<S: Zero> Zero for Mat2<S> {
     const ZERO: Mat2<S> = Mat2::from_cols(Vec2::ZERO, Vec2::ZERO);
 }
@@ -42,6 +46,10 @@ impl<S> Mat2<S> {
 
 impl<S: Zero> Zero for Mat3<S> {
     const ZERO: Mat3<S> = Mat3::from_cols(Vec3::ZERO, Vec3::ZERO, Vec3::ZERO);
+}
+
+impl<S: Zero + One> Mat3<S> {
+    pub const IDENTITY: Mat3<S> = Mat3::from_cols(Vec3::X, Vec3::Y, Vec3::Z);
 }
 
 impl<S> Mat3<S> {
@@ -68,6 +76,10 @@ impl<S> Mat3<S> {
 
 impl<S: Zero> Zero for Mat4<S> {
     const ZERO: Mat4<S> = Mat4::from_cols(Vec4::ZERO, Vec4::ZERO, Vec4::ZERO, Vec4::ZERO);
+}
+
+impl<S: Zero + One> Mat4<S> {
+    pub const IDENTITY: Mat4<S> = Mat4::from_cols(Vec4::X, Vec4::Y, Vec4::Z, Vec4::W);
 }
 
 impl<S> Mat4<S> {

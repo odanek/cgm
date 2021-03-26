@@ -3,7 +3,7 @@ use std::ops::{Add, Div, Mul, Sub};
 use crate::{Angle, Float, Num, One, Rad, Zero};
 
 pub trait VectorSpace: Copy + Clone
-where 
+where
     Self: Zero,
     Self: Add<Self, Output = Self>,
     Self: Sub<Self, Output = Self>,

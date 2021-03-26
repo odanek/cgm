@@ -59,11 +59,11 @@ where
 }
 
 #[repr(transparent)]
-#[derive(Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Deg<S>(pub S);
 
 #[repr(transparent)]
-#[derive(Copy, Clone, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Rad<S>(pub S);
 
 impl<S: Float> From<Rad<S>> for Deg<S>
@@ -153,8 +153,7 @@ impl_operator!(<S: Float>, Rem<Rad<S>>, Rad<S>, {
     fn rem(lhs, rhs) -> Rad<S> { Rad(lhs.0 % rhs.0) }
 });
 
-impl<S: Float> Neg for Rad<S>
-{
+impl<S: Float> Neg for Rad<S> {
     type Output = Rad<S>;
 
     #[inline]
@@ -163,8 +162,7 @@ impl<S: Float> Neg for Rad<S>
     }
 }
 
-impl<'a, S: Float> Neg for &'a Rad<S>
-{
+impl<'a, S: Float> Neg for &'a Rad<S> {
     type Output = Rad<S>;
 
     #[inline]
@@ -238,8 +236,7 @@ impl_operator!(<S: Float>, Rem<Deg<S>>, Deg<S>, {
     fn rem(lhs, rhs) -> Deg<S> { Deg(lhs.0 % rhs.0) }
 });
 
-impl<S: Float> Neg for Deg<S>
-{
+impl<S: Float> Neg for Deg<S> {
     type Output = Deg<S>;
 
     #[inline]
@@ -248,8 +245,7 @@ impl<S: Float> Neg for Deg<S>
     }
 }
 
-impl<'a, S: Float> Neg for &'a Deg<S>
-{
+impl<'a, S: Float> Neg for &'a Deg<S> {
     type Output = Deg<S>;
 
     #[inline]
