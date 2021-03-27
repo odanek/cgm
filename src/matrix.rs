@@ -1,4 +1,4 @@
-use crate::{One, Vec2, Vec3, Vec4, Zero};
+use crate::{Num, One, Vec2, Vec3, Vec4, Zero};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -24,6 +24,16 @@ pub struct Mat4<S> {
     pub w: Vec4<S>,
 }
 
+pub trait Matrix {
+    type Row;
+    type Column;
+    type Transpose;
+
+    fn row(&self, r: usize) -> Self::Row;
+    fn column(&self, c: usize) -> Self::Column;
+    fn transpose(&self) -> Self::Transpose;
+}
+
 impl<S: Zero + One> Mat2<S> {
     pub const IDENTITY: Mat2<S> = Mat2::from_cols(Vec2::X, Vec2::Y);
 }
@@ -41,6 +51,34 @@ impl<S> Mat2<S> {
     #[inline]
     pub const fn from_cols(x: Vec2<S>, y: Vec2<S>) -> Mat2<S> {
         Mat2 { x, y }
+    }
+}
+
+impl<S: Num> Matrix for Mat2<S> {
+    type Row = Vec2<S>;
+    type Column = Vec2<S>;
+    type Transpose = Mat2<S>;
+
+    #[inline]
+    fn row(&self, r: usize) -> Vec2<S> {
+        match r {
+            0 => Vec2::new(self.x.x, self.y.x),
+            1 => Vec2::new(self.x.y, self.y.y),
+            _ => panic!("Invalid row index")
+        }
+    }
+
+    #[inline]
+    fn column(&self, r: usize) -> Vec2<S> {
+        match r {
+            0 => self.x,
+            1 => self.y,
+            _ => panic!("Invalid column index")
+        }
+    }
+
+    fn transpose(&self) -> Mat2<S> {
+        Mat2::new(self.x.x, self.y.x, self.x.y, self.y.y)
     }
 }
 
@@ -67,10 +105,44 @@ impl<S> Mat3<S> {
         )
     }
 
-    /// Create a new matrix, providing columns.
     #[inline]
     pub const fn from_cols(x: Vec3<S>, y: Vec3<S>, z: Vec3<S>) -> Mat3<S> {
         Mat3 { x, y, z }
+    }
+}
+
+impl<S: Num> Matrix for Mat3<S> {
+    type Row = Vec3<S>;
+    type Column = Vec3<S>;
+    type Transpose = Mat3<S>;
+
+    #[inline]
+    fn row(&self, r: usize) -> Vec3<S> {
+        match r {
+            0 => Vec3::new(self.x.x, self.y.x, self.z.x),
+            1 => Vec3::new(self.x.y, self.y.y, self.z.y),
+            2 => Vec3::new(self.x.z, self.y.z, self.z.z),
+            _ => panic!("Invalid row index")
+        }
+    }
+
+    #[inline]
+    fn column(&self, r: usize) -> Vec3<S> {
+        match r {
+            0 => self.x,
+            1 => self.y,
+            2 => self.z,
+            _ => panic!("Invalid column index")
+        }
+    }
+
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    fn transpose(&self) -> Mat3<S> {
+        Mat3::new(
+            self.x.x, self.y.x, self.z.x, 
+            self.x.y, self.y.y, self.z.y,
+            self.x.z, self.y.z, self.z.z, 
+        )
     }
 }
 
@@ -102,6 +174,44 @@ impl<S> Mat4<S> {
     #[inline]
     pub const fn from_cols(x: Vec4<S>, y: Vec4<S>, z: Vec4<S>, w: Vec4<S>) -> Mat4<S> {
         Mat4 { x, y, z, w }
+    }
+}
+
+impl<S: Num> Matrix for Mat4<S> {
+    type Row = Vec4<S>;
+    type Column = Vec4<S>;
+    type Transpose = Mat4<S>;
+
+    #[inline]
+    fn row(&self, r: usize) -> Vec4<S> {
+        match r {
+            0 => Vec4::new(self.x.x, self.y.x, self.z.x, self.w.x),
+            1 => Vec4::new(self.x.y, self.y.y, self.z.y, self.w.y),
+            2 => Vec4::new(self.x.z, self.y.z, self.z.z, self.w.z),
+            3 => Vec4::new(self.x.w, self.y.w, self.z.w, self.w.w),
+            _ => panic!("Invalid row index")
+        }
+    }
+
+    #[inline]
+    fn column(&self, r: usize) -> Vec4<S> {
+        match r {
+            0 => self.x,
+            1 => self.y,
+            2 => self.z,
+            3 => self.w,
+            _ => panic!("Invalid column index")
+        }
+    }
+
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    fn transpose(&self) -> Mat4<S> {
+        Mat4::new(
+            self.x.x, self.y.x, self.z.x, self.w.x,
+            self.x.y, self.y.y, self.z.y, self.w.y,
+            self.x.z, self.y.z, self.z.z, self.w.z,
+            self.x.w, self.y.w, self.z.w, self.w.w,
+        )
     }
 }
 
