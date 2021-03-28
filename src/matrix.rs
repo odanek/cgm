@@ -1,4 +1,4 @@
-use crate::{Num, One, Vec2, Vec3, Vec4, Zero};
+use crate::{Angle, Float, Num, One, Rad, Vec2, Vec3, Vec4, Zero};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -51,6 +51,31 @@ impl<S> Mat2<S> {
     #[inline]
     pub const fn from_cols(x: Vec2<S>, y: Vec2<S>) -> Mat2<S> {
         Mat2 { x, y }
+    }
+}
+
+impl<S: Float> Mat2<S> {
+    #[inline]
+    pub fn from_translation(t: S) -> Mat2<S> {
+        Mat2::new(S::ONE, S::ZERO, t, S::ONE)
+    }
+
+    #[inline]
+    pub fn from_scale(value: S) -> Mat2<S> {
+        Mat2::new(value, S::ZERO, S::ZERO, value)
+    }
+
+    #[inline]
+    pub fn from_nonuniform_scale(x: S, y: S) -> Mat2<S> {
+        Mat2::new(x, S::ZERO, S::ZERO, y)
+    }
+
+    #[inline]
+    pub fn from_rotation<A: Into<Rad<S>>>(theta: A) -> Mat2<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+        Mat2::new(c, s, -s, c)
     }
 }
 
@@ -109,6 +134,103 @@ impl<S> Mat3<S> {
     #[inline]
     pub const fn from_cols(x: Vec3<S>, y: Vec3<S>, z: Vec3<S>) -> Mat3<S> {
         Mat3 { x, y, z }
+    }
+}
+
+impl<S: Float> Mat3<S> {
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_translation(v: Vec2<S>) -> Mat3<S> {
+        Mat3::new(
+            S::ONE, S::ZERO, S::ZERO,
+            S::ZERO, S::ONE, S::ZERO,
+            v.x, v.y, S::ONE,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_scale(value: S) -> Mat3<S> {
+        Mat3::new(
+            value, S::ZERO, S::ZERO,
+            S::ZERO, value, S::ZERO,
+            S::ZERO, S::ZERO, value,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_nonuniform_scale(x: S, y: S, z: S) -> Mat3<S> {
+        Mat3::new(
+            x, S::ZERO, S::ZERO,
+            S::ZERO, y, S::ZERO,
+            S::ZERO, S::ZERO, z,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation<A: Into<Rad<S>>>(axis: Vec3<S>, theta: A) -> Mat3<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+        let mc = S::ONE - c;
+
+        Mat3::new(
+            mc * axis.x * axis.x + c,
+            mc * axis.x * axis.y + s * axis.z,
+            mc * axis.x * axis.z - s * axis.y,
+
+            mc * axis.x * axis.y - s * axis.z,
+            mc * axis.y * axis.y + c,
+            mc * axis.y * axis.z + s * axis.x,
+
+            mc * axis.x * axis.z + s * axis.y,
+            mc * axis.y * axis.z - s * axis.x,
+            mc * axis.z * axis.z + c,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation_x<A: Into<Rad<S>>>(theta: A) -> Mat3<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+
+        Mat3::new(
+            S::ONE, S::ZERO, S::ZERO,
+            S::ZERO, c, s,
+            S::ZERO, -s, c,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation_y<A: Into<Rad<S>>>(theta: A) -> Mat3<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+
+        Mat3::new(
+            c, S::ZERO, s,
+            S::ZERO, S::ONE, S::ZERO,
+            -s, S::ZERO, c,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation_z<A: Into<Rad<S>>>(theta: A) -> Mat3<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+
+        Mat3::new(
+            c, s, S::ZERO,
+            -s, c, S::ZERO,
+            S::ZERO, S::ZERO, S::ONE,
+        )
     }
 }
 
@@ -179,6 +301,114 @@ impl<S> Mat4<S> {
     }
 }
 
+impl<S: Float> Mat4<S> {
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_translation(v: Vec3<S>) -> Mat4<S> {
+        Mat4::new(
+            S::ONE, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, S::ONE, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, S::ONE, S::ZERO,
+            v.x, v.y, v.z, S::ONE,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_scale(value: S) -> Mat4<S> {
+        Mat4::new(
+            value, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, value, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, value, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, S::ONE,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_nonuniform_scale(x: S, y: S, z: S) -> Mat4<S> {
+        Mat4::new(
+            x, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, y, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, z, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, S::ONE,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation<A: Into<Rad<S>>>(axis: Vec3<S>, theta: A) -> Mat4<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+        let mc = S::ONE - c;
+
+        Mat4::new(
+            mc * axis.x * axis.x + c,
+            mc * axis.x * axis.y + s * axis.z,
+            mc * axis.x * axis.z - s * axis.y,
+            S::ZERO,
+
+            mc * axis.x * axis.y - s * axis.z,
+            mc * axis.y * axis.y + c,
+            mc * axis.y * axis.z + s * axis.x,
+            S::ZERO,
+
+            mc * axis.x * axis.z + s * axis.y,
+            mc * axis.y * axis.z - s * axis.x,
+            mc * axis.z * axis.z + c,
+            S::ZERO,
+
+            S::ZERO, S::ZERO, S::ZERO, S::ONE,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation_x<A: Into<Rad<S>>>(theta: A) -> Mat4<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+
+        Mat4::new(
+            S::ONE, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, c, s, S::ZERO,
+            S::ZERO, -s, c, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, S::ONE,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation_y<A: Into<Rad<S>>>(theta: A) -> Mat4<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+
+        Mat4::new(
+            c, S::ZERO, s,S::ZERO,
+            S::ZERO, S::ONE, S::ZERO, S::ZERO,
+            -s, S::ZERO, c, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, S::ONE,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    pub fn from_rotation_z<A: Into<Rad<S>>>(theta: A) -> Mat4<S> {
+        let angle: Rad<S> = theta.into();
+        let s = angle.sin();
+        let c = angle.cos();
+
+        Mat4::new(
+            c, s, S::ZERO, S::ZERO,
+            -s, c, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, S::ONE, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, S::ONE,
+        )
+    }
+}
+
 impl<S: Num> Matrix for Mat4<S> {
     type Row = Vec4<S>;
     type Column = Vec4<S>;
@@ -218,103 +448,6 @@ impl<S: Num> Matrix for Mat4<S> {
 }
 
 // impl Mat4 {
-//     pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data: [
-//                 x, 0.0, 0.0, 0.0,
-//                 0.0, y, 0.0, 0.0,
-//                 0.0, 0.0, z, 0.0,
-//                 0.0, 0.0, 0.0, 1.0
-//             ]
-//         }
-//     }
-
-//     pub fn vec_scale(vec: Vec3<f32>) -> Mat4 {
-//         Self::scale(vec.x, vec.y, vec.z)
-//     }
-
-//     pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data: [
-//                 1.0, 0.0, 0.0, 0.0,
-//                 0.0, 1.0, 0.0, 0.0,
-//                 0.0, 0.0, 1.0, 0.0,
-//                 x, y, z, 1.0
-//             ]
-//         }
-//     }
-
-//     pub fn vec_translate(vec: Vec3<f32>) -> Mat4 {
-//         Self::translate(vec.x, vec.y, vec.z)
-//     }
-
-//     pub fn rotate(angle: Rad<f32>, axis: Vec3<f32>) -> Mat4 {
-//         let c = angle.cos();
-//         let mc = 1.0 - c;
-//         let s = angle.sin();
-
-//         let x = axis.x;
-//         let y = axis.y;
-//         let z = axis.z;
-
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data: [
-//                 x * x * mc + c, x * y * mc + z * s, x * z * mc - y * s, 0.0,
-//                 x * y * mc - z * s, y * y * mc + c, y * z * mc + x * s, 0.0,
-//                 x * z * mc + y * s, y * z * mc - x * s, z * z * mc + c, 0.0,
-//                 0.0, 0.0, 0.0, 1.0
-//             ]
-//         }
-//     }
-
-//     pub fn rotate_x(angle: Rad<f32>) -> Mat4 {
-//         let s = angle.sin();
-//         let c = angle.cos();
-
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data:[
-//                 1.0, 0.0, 0.0, 0.0,
-//                 0.0, c, s, 0.0,
-//                 0.0, -s, c, 0.0,
-//                 0.0, 0.0, 0.0, 1.0
-//             ]
-//         }
-//     }
-
-//     pub fn rotate_y(angle: Rad<f32>) -> Mat4 {
-//         let s = angle.sin();
-//         let c = angle.cos();
-
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data:[
-//                 c, 0.0, -s, 0.0,
-//                 0.0, 1.0, 0.0, 0.0,
-//                 s, 0.0, c, 0.0,
-//                 0.0, 0.0, 0.0, 1.0
-//             ]
-//         }
-//     }
-
-//     pub fn rotate_z(angle: Rad<f32>) -> Mat4 {
-//         let s = angle.sin();
-//         let c = angle.cos();
-
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data:[
-//                 c, s, 0.0, 0.0,
-//                 -s, c, 0.0, 0.0,
-//                 0.0, 0.0, 1.0, 0.0,
-//                 0.0, 0.0, 0.0, 1.0
-//             ]
-//         }
-//     }
-
 //     pub fn perspective(fov: Rad<f32>, aspect: f32, near_clip: f32, far_clip: f32) -> Mat4 {
 //         let half_fov = fov.0 / 2.0;
 //         let f = half_fov.cos() / half_fov.sin();
@@ -361,20 +494,6 @@ impl<S: Num> Matrix for Mat4<S> {
 //             ]
 //         };
 //         m * Mat4::vec_translate(-eye)
-//     }
-
-//     pub fn transpose(&self) -> Mat4 {
-//         let data = &self.data;
-
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data: [
-//                 data[0], data[4], data[8], data[12],
-//                 data[1], data[5], data[9], data[13],
-//                 data[2], data[6], data[10], data[14],
-//                 data[3], data[7], data[11], data[15]
-//             ]
-//         }
 //     }
 // }
 
