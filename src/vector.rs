@@ -42,7 +42,7 @@ macro_rules! impl_vector {
         impl<S> $VecN<S> {
             #[inline]
             pub const fn new($($field: S),+) -> $VecN<S> {
-                $VecN { $($field: $field),+ }
+                $VecN { $($field),+ }
             }
         }
 

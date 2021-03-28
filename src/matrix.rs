@@ -64,7 +64,7 @@ impl<S: Num> Matrix for Mat2<S> {
         match r {
             0 => Vec2::new(self.x.x, self.y.x),
             1 => Vec2::new(self.x.y, self.y.y),
-            _ => panic!("Invalid row index")
+            _ => panic!("Invalid row index"),
         }
     }
 
@@ -73,7 +73,7 @@ impl<S: Num> Matrix for Mat2<S> {
         match r {
             0 => self.x,
             1 => self.y,
-            _ => panic!("Invalid column index")
+            _ => panic!("Invalid column index"),
         }
     }
 
@@ -92,7 +92,8 @@ impl<S: Zero + One> Mat3<S> {
 
 impl<S> Mat3<S> {
     #[inline]
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
+    #[allow(clippy::too_many_arguments)]
     pub const fn new(
         c0r0:S, c0r1:S, c0r2:S,
         c1r0:S, c1r1:S, c1r2:S,
@@ -122,7 +123,7 @@ impl<S: Num> Matrix for Mat3<S> {
             0 => Vec3::new(self.x.x, self.y.x, self.z.x),
             1 => Vec3::new(self.x.y, self.y.y, self.z.y),
             2 => Vec3::new(self.x.z, self.y.z, self.z.z),
-            _ => panic!("Invalid row index")
+            _ => panic!("Invalid row index"),
         }
     }
 
@@ -132,16 +133,16 @@ impl<S: Num> Matrix for Mat3<S> {
             0 => self.x,
             1 => self.y,
             2 => self.z,
-            _ => panic!("Invalid column index")
+            _ => panic!("Invalid column index"),
         }
     }
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     fn transpose(&self) -> Mat3<S> {
         Mat3::new(
-            self.x.x, self.y.x, self.z.x, 
+            self.x.x, self.y.x, self.z.x,
             self.x.y, self.y.y, self.z.y,
-            self.x.z, self.y.z, self.z.z, 
+            self.x.z, self.y.z, self.z.z,
         )
     }
 }
@@ -156,7 +157,8 @@ impl<S: Zero + One> Mat4<S> {
 
 impl<S> Mat4<S> {
     #[inline]
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
+    #[allow(clippy::too_many_arguments)]
     pub const fn new(
         c0r0: S, c0r1: S, c0r2: S, c0r3: S,
         c1r0: S, c1r1: S, c1r2: S, c1r3: S,
@@ -189,7 +191,7 @@ impl<S: Num> Matrix for Mat4<S> {
             1 => Vec4::new(self.x.y, self.y.y, self.z.y, self.w.y),
             2 => Vec4::new(self.x.z, self.y.z, self.z.z, self.w.z),
             3 => Vec4::new(self.x.w, self.y.w, self.z.w, self.w.w),
-            _ => panic!("Invalid row index")
+            _ => panic!("Invalid row index"),
         }
     }
 
@@ -200,11 +202,11 @@ impl<S: Num> Matrix for Mat4<S> {
             1 => self.y,
             2 => self.z,
             3 => self.w,
-            _ => panic!("Invalid column index")
+            _ => panic!("Invalid column index"),
         }
     }
 
-    #[cfg_attr(rustfmt, rustfmt_skip)]
+    #[rustfmt::skip]
     fn transpose(&self) -> Mat4<S> {
         Mat4::new(
             self.x.x, self.y.x, self.z.x, self.w.x,
@@ -216,19 +218,9 @@ impl<S: Num> Matrix for Mat4<S> {
 }
 
 // impl Mat4 {
-//     #[cfg_attr(rustfmt, rustfmt::skip)]
-//     pub const IDENT: Mat4 = Mat4 {
-//         data: [
-//             1.0, 0.0, 0.0, 0.0,
-//             0.0, 1.0, 0.0, 0.0,
-//             0.0, 0.0, 1.0, 0.0,
-//             0.0, 0.0, 0.0, 1.0
-//         ]
-//     };
-
 //     pub fn scale(x: f32, y: f32, z: f32) -> Mat4 {
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data: [
 //                 x, 0.0, 0.0, 0.0,
 //                 0.0, y, 0.0, 0.0,
@@ -244,7 +236,7 @@ impl<S: Num> Matrix for Mat4<S> {
 
 //     pub fn translate(x: f32, y: f32, z: f32) -> Mat4 {
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data: [
 //                 1.0, 0.0, 0.0, 0.0,
 //                 0.0, 1.0, 0.0, 0.0,
@@ -268,7 +260,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let z = axis.z;
 
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data: [
 //                 x * x * mc + c, x * y * mc + z * s, x * z * mc - y * s, 0.0,
 //                 x * y * mc - z * s, y * y * mc + c, y * z * mc + x * s, 0.0,
@@ -283,7 +275,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let c = angle.cos();
 
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data:[
 //                 1.0, 0.0, 0.0, 0.0,
 //                 0.0, c, s, 0.0,
@@ -298,7 +290,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let c = angle.cos();
 
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data:[
 //                 c, 0.0, -s, 0.0,
 //                 0.0, 1.0, 0.0, 0.0,
@@ -313,7 +305,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let c = angle.cos();
 
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data:[
 //                 c, s, 0.0, 0.0,
 //                 -s, c, 0.0, 0.0,
@@ -329,7 +321,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let d = far_clip - near_clip;
 
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data: [
 //                 f / aspect, 0.0, 0.0, 0.0,
 //                 0.0, -f, 0.0, 0.0,
@@ -345,7 +337,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let z= far - near;
 
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data: [
 //                 2.0 / x, 0.0, 0.0, 0.0,
 //                 0.0, 2.0 / y, 0.0, 0.0,
@@ -360,7 +352,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let s = f.cross(up.normalize());
 //         let u = s.normalize().cross(f);
 //         let m = Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data: [
 //                 s.x, u.x, -f.x, 0.0,
 //                 s.y, u.y, -f.y, 0.0,
@@ -375,7 +367,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let data = &self.data;
 
 //         Mat4 {
-//             #[cfg_attr(rustfmt, rustfmt::skip)]
+//             #[rustfmt::skip]
 //             data: [
 //                 data[0], data[4], data[8], data[12],
 //                 data[1], data[5], data[9], data[13],
@@ -500,7 +492,7 @@ impl<S: Num> Matrix for Mat4<S> {
 //         let z = rhs.z;
 //         let w = rhs.w;
 
-//         #[cfg_attr(rustfmt, rustfmt::skip)]
+//         #[rustfmt::skip]
 //         Vec4::new(
 //             m[0] * x + m[4] * y + m[8] * z + m[12] * w,
 //             m[1] * x + m[5] * y + m[9] * z + m[13] * w,
