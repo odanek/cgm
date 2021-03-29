@@ -1,4 +1,6 @@
-use crate::{Angle, Float, Num, One, Rad, Vec2, Vec3, Vec4, Zero};
+use std::ops::Mul;
+
+use crate::{Angle, Float, InnerSpace, Num, One, Rad, Vec2, Vec3, Vec4, Zero};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -106,6 +108,15 @@ impl<S: Num> Matrix for Mat2<S> {
         Mat2::new(self.x.x, self.y.x, self.x.y, self.y.y)
     }
 }
+
+impl_operator!(<S: Float>, Mul<Mat2<S>>, Mat2<S>, {
+    fn mul(lhs, rhs) -> Mat2<S> {
+        Mat2::new(
+            lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)),
+            lhs.row(0).dot(rhs.column(1)), lhs.row(1).dot(rhs.column(1)),
+        )
+    }
+});
 
 impl<S: Zero> Zero for Mat3<S> {
     const ZERO: Mat3<S> = Mat3::from_cols(Vec3::ZERO, Vec3::ZERO, Vec3::ZERO);
@@ -268,6 +279,16 @@ impl<S: Num> Matrix for Mat3<S> {
         )
     }
 }
+
+impl_operator!(<S: Float>, Mul<Mat3<S>>, Mat3<S>, {
+    fn mul(lhs, rhs) -> Mat3<S> {
+        Mat3::new(
+            lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)), lhs.row(2).dot(rhs.column(0)),
+            lhs.row(0).dot(rhs.column(1)), lhs.row(1).dot(rhs.column(1)), lhs.row(2).dot(rhs.column(1)),
+            lhs.row(0).dot(rhs.column(2)), lhs.row(1).dot(rhs.column(2)), lhs.row(2).dot(rhs.column(2)),
+        )
+    }
+});
 
 impl<S: Zero> Zero for Mat4<S> {
     const ZERO: Mat4<S> = Mat4::from_cols(Vec4::ZERO, Vec4::ZERO, Vec4::ZERO, Vec4::ZERO);
@@ -447,6 +468,17 @@ impl<S: Num> Matrix for Mat4<S> {
     }
 }
 
+impl_operator!(<S: Float>, Mul<Mat4<S>>, Mat4<S>, {
+    fn mul(lhs, rhs) -> Mat4<S> {
+        Mat4::new(
+            lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)), lhs.row(2).dot(rhs.column(0)), lhs.row(3).dot(rhs.column(0)),
+            lhs.row(0).dot(rhs.column(1)), lhs.row(1).dot(rhs.column(1)), lhs.row(2).dot(rhs.column(1)), lhs.row(3).dot(rhs.column(1)),
+            lhs.row(0).dot(rhs.column(2)), lhs.row(1).dot(rhs.column(2)), lhs.row(2).dot(rhs.column(2)), lhs.row(3).dot(rhs.column(2)),
+            lhs.row(0).dot(rhs.column(3)), lhs.row(1).dot(rhs.column(3)), lhs.row(2).dot(rhs.column(3)), lhs.row(3).dot(rhs.column(3)),
+        )
+    }
+});
+
 // impl Mat4 {
 //     pub fn perspective(fov: Rad<f32>, aspect: f32, near_clip: f32, far_clip: f32) -> Mat4 {
 //         let half_fov = fov.0 / 2.0;
@@ -520,59 +552,6 @@ impl<S: Num> Matrix for Mat4<S> {
 //                 self.data[14] + rhs.data[14],
 //                 self.data[15] + rhs.data[15],
 //             ]
-//         }
-//     }
-// }
-
-// impl ops::Mul<Mat4> for Mat4 {
-//     type Output = Mat4;
-
-//     fn mul(self, rhs: Mat4) -> Self::Output {
-//         &self * &rhs
-//     }
-// }
-
-// impl ops::Mul<&Mat4> for Mat4 {
-//     type Output = Mat4;
-
-//     fn mul(self, rhs: &Mat4) -> Self::Output {
-//         &self * rhs
-//     }
-// }
-
-// impl ops::Mul<Mat4> for &Mat4 {
-//     type Output = Mat4;
-
-//     fn mul(self, rhs: Mat4) -> Self::Output {
-//         self * &rhs
-//     }
-// }
-
-// impl ops::Mul<&Mat4> for &Mat4 {
-//     type Output = Mat4;
-
-//     fn mul(self, rhs: &Mat4) -> Self::Output {
-//         let mut data: [f32; 16] = [0f32; 16]; // TODO Not necessary
-//         let mut index = 0usize;
-
-//         for column in 0..4 {
-//             for row in 0..4 {
-//                 let mut left = row;
-//                 let mut right = column * 4;
-//                 let mut sum = 0f32;
-
-//                 for _ in 0..4 {
-//                     sum += self.data[left] * rhs.data[right];
-//                     left += 4;
-//                     right += 1;
-//                 }
-//                 data[index] = sum;
-//                 index += 1;
-//             }
-//         }
-
-//         Mat4 {
-//             data
 //         }
 //     }
 // }
