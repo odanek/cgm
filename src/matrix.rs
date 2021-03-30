@@ -428,6 +428,50 @@ impl<S: Float> Mat4<S> {
             S::ZERO, S::ZERO, S::ZERO, S::ONE,
         )
     }
+
+    #[rustfmt::skip]
+    pub fn perspective<A: Into<Rad<S>>>(fov: A, aspect: S, near_clip: S, far_clip: S) -> Mat4<S> {
+        let angle: Rad<S> = fov.into();
+        let half_fov = angle / (S::ONE + S::ONE);
+        let f = half_fov.cos() / half_fov.sin();
+        let d = far_clip - near_clip;
+
+        Mat4::new(
+            f / aspect, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, -f, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, -far_clip / d, -S::ONE,
+            S::ZERO, S::ZERO, -(far_clip * near_clip) / d, S::ZERO,
+        )
+    }
+
+    #[rustfmt::skip]
+    pub fn ortho(left: S, right: S, top: S, bottom: S, near: S, far: S) -> Mat4<S> {
+        let x = right - left;
+        let y = top - bottom;
+        let z = far - near;
+        let two = S::ONE + S::ONE;
+
+        Mat4::new(
+            two / x, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, two / y, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, -two / z, S::ZERO,
+            (left + right) / -x, (bottom + top) / -y, (near + far) / -z, S::ONE,
+        )
+    }
+
+    #[rustfmt::skip]
+    pub fn look_at(eye: Vec3<S>, center: Vec3<S>, up: Vec3<S>) -> Mat4<S> {
+        let f = (center - eye).normalize();
+        let s = f.cross(up.normalize());
+        let u = s.normalize().cross(f);
+        let m = Mat4::new(
+            s.x, u.x, -f.x, S::ZERO,
+            s.y, u.y, -f.y, S::ZERO,
+            s.z, u.z, -f.z, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, S::ONE,
+        );
+        m * Mat4::from_translation(-eye)
+    }
 }
 
 impl<S: Num> Matrix for Mat4<S> {
@@ -480,53 +524,7 @@ impl_operator!(<S: Float>, Mul<Mat4<S>>, Mat4<S>, {
 });
 
 // impl Mat4 {
-//     pub fn perspective(fov: Rad<f32>, aspect: f32, near_clip: f32, far_clip: f32) -> Mat4 {
-//         let half_fov = fov.0 / 2.0;
-//         let f = half_fov.cos() / half_fov.sin();
-//         let d = far_clip - near_clip;
 
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data: [
-//                 f / aspect, 0.0, 0.0, 0.0,
-//                 0.0, -f, 0.0, 0.0,
-//                 0.0, 0.0, -far_clip / d, -1.0,
-//                 0.0, 0.0, -(far_clip * near_clip) / d, 0.0
-//             ]
-//         }
-//     }
-
-//     pub fn ortho(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) -> Mat4 {
-//         let x = right - left;
-//         let y= top - bottom;
-//         let z= far - near;
-
-//         Mat4 {
-//             #[rustfmt::skip]
-//             data: [
-//                 2.0 / x, 0.0, 0.0, 0.0,
-//                 0.0, 2.0 / y, 0.0, 0.0,
-//                 0.0, 0.0, -2.0 / z, 0.0,
-//                 (left + right) / -x, (bottom + top) / -y, (near + far) / -z, 1.0
-//             ]
-//         }
-//     }
-
-//     pub fn look_at(eye: Vec3<f32>, center: Vec3<f32>, up: Vec3<f32>) -> Mat4 {
-//         let f = (center - eye).normalize();
-//         let s = f.cross(up.normalize());
-//         let u = s.normalize().cross(f);
-//         let m = Mat4 {
-//             #[rustfmt::skip]
-//             data: [
-//                 s.x, u.x, -f.x, 0.0,
-//                 s.y, u.y, -f.y, 0.0,
-//                 s.z, u.z, -f.z, 0.0,
-//                 0.0, 0.0, 0.0, 1.0
-//             ]
-//         };
-//         m * Mat4::vec_translate(-eye)
-//     }
 // }
 
 // impl ops::Add<Mat4> for Mat4 {
