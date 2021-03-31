@@ -430,36 +430,6 @@ impl<S: Float> Mat4<S> {
     }
 
     #[rustfmt::skip]
-    pub fn perspective<A: Into<Rad<S>>>(fov: A, aspect: S, near_clip: S, far_clip: S) -> Mat4<S> {
-        let angle: Rad<S> = fov.into();
-        let half_fov = angle / (S::ONE + S::ONE);
-        let f = half_fov.cos() / half_fov.sin();
-        let d = far_clip - near_clip;
-
-        Mat4::new(
-            f / aspect, S::ZERO, S::ZERO, S::ZERO,
-            S::ZERO, -f, S::ZERO, S::ZERO,
-            S::ZERO, S::ZERO, -far_clip / d, -S::ONE,
-            S::ZERO, S::ZERO, -(far_clip * near_clip) / d, S::ZERO,
-        )
-    }
-
-    #[rustfmt::skip]
-    pub fn ortho(left: S, right: S, top: S, bottom: S, near: S, far: S) -> Mat4<S> {
-        let x = right - left;
-        let y = top - bottom;
-        let z = far - near;
-        let two = S::ONE + S::ONE;
-
-        Mat4::new(
-            two / x, S::ZERO, S::ZERO, S::ZERO,
-            S::ZERO, two / y, S::ZERO, S::ZERO,
-            S::ZERO, S::ZERO, -two / z, S::ZERO,
-            (left + right) / -x, (bottom + top) / -y, (near + far) / -z, S::ONE,
-        )
-    }
-
-    #[rustfmt::skip]
     pub fn look_at(eye: Vec3<S>, center: Vec3<S>, up: Vec3<S>) -> Mat4<S> {
         let f = (center - eye).normalize();
         let s = f.cross(up.normalize());
