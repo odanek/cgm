@@ -63,17 +63,20 @@ macro_rules! impl_vector {
             }
         }
 
-        impl_operator!(<S: Num>, Add<$VecN<S>>, $VecN<S>, {
+        impl_operator!(<S: Num> Add<$VecN<S>> for $VecN<S> {
             fn add(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field + rhs.$field),+ } }
         });
-        impl_operator!(<S: Num>, Sub<$VecN<S>>, $VecN<S>, {
+        impl_operator!(<S: Num> Sub<$VecN<S>> for $VecN<S> {
             fn sub(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field - rhs.$field),+ } }
         });
-        impl_operator!(<S: Num>, Mul<S>, $VecN<S>, {
+        impl_operator!(<S: Num> Mul<S> for $VecN<S> {
             fn mul(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field * rhs),+ } }
         });
-        impl_operator!(<S: Num>, Div<S>, $VecN<S>, {
+        impl_operator!(<S: Num> Div<S> for $VecN<S> {
             fn div(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field / rhs),+ } }
+        });
+        impl_operator!(<S: SignedNum> Neg for $VecN<S> {
+            fn neg(vec) -> $VecN<S> { $VecN { $($field: -vec.$field),+ } }
         });
         impl_scalar_ops!($VecN<usize> { $($field),+ });
         impl_scalar_ops!($VecN<u8> { $($field),+ });
@@ -87,33 +90,15 @@ macro_rules! impl_vector {
         impl_scalar_ops!($VecN<i64> { $($field),+ });
         impl_scalar_ops!($VecN<f32> { $($field),+ });
         impl_scalar_ops!($VecN<f64> { $($field),+ });
-
-        impl<S: SignedNum> Neg for $VecN<S> {
-            type Output = $VecN<S>;
-
-            #[inline]
-            fn neg(self) -> Self::Output {
-                $VecN { $($field: -self.$field),+ }
-            }
-        }
-
-        impl<'a, S: SignedNum> Neg for &'a $VecN<S> {
-            type Output = $VecN<S>;
-
-            #[inline]
-            fn neg(self) -> Self::Output {
-                $VecN { $($field: -self.$field),+ }
-            }
-        }
     }
 }
 
 macro_rules! impl_scalar_ops {
     ($VecN:ident<$S:ident> { $($field:ident),+ }) => {
-        impl_operator!(Mul<$VecN<$S>>, $S, {
+        impl_operator!(Mul<$VecN<$S>> for $S {
             fn mul(scalar, vector) -> $VecN<$S> { $VecN { $($field: scalar * vector.$field),+ } }
         });
-        impl_operator!(Div<$VecN<$S>>, $S, {
+        impl_operator!(Div<$VecN<$S>> for $S {
             fn div(scalar, vector) -> $VecN<$S> { $VecN { $($field: scalar / vector.$field),+ } }
         });
     };

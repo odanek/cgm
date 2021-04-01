@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use crate::{Angle, Float, InnerSpace, Num, One, Rad, Vec2, Vec3, Vec4, Zero};
 
@@ -109,7 +109,7 @@ impl<S: Num> Matrix for Mat2<S> {
     }
 }
 
-impl_operator!(<S: Float>, Mul<Mat2<S>>, Mat2<S>, {
+impl_operator!(<S: Float> Mul<Mat2<S>> for Mat2<S> {
     fn mul(lhs, rhs) -> Mat2<S> {
         Mat2::new(
             lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)),
@@ -280,7 +280,7 @@ impl<S: Num> Matrix for Mat3<S> {
     }
 }
 
-impl_operator!(<S: Float>, Mul<Mat3<S>>, Mat3<S>, {
+impl_operator!(<S: Float> Mul<Mat3<S>> for Mat3<S> {
     fn mul(lhs, rhs) -> Mat3<S> {
         Mat3::new(
             lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)), lhs.row(2).dot(rhs.column(0)),
@@ -482,7 +482,7 @@ impl<S: Num> Matrix for Mat4<S> {
     }
 }
 
-impl_operator!(<S: Float>, Mul<Mat4<S>>, Mat4<S>, {
+impl_operator!(<S: Float> Mul<Mat4<S>> for Mat4<S> {
     fn mul(lhs, rhs) -> Mat4<S> {
         Mat4::new(
             lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)), lhs.row(2).dot(rhs.column(0)), lhs.row(3).dot(rhs.column(0)),
@@ -493,77 +493,118 @@ impl_operator!(<S: Float>, Mul<Mat4<S>>, Mat4<S>, {
     }
 });
 
-// impl Mat4 {
+macro_rules! impl_matrix {
+    ($MatN:ident, $VecN:ident { $($field:ident : $row_index:expr),+ }) => {
+        impl_operator!(<S: Float> Neg for $MatN<S> {
+            fn neg(matrix) -> $MatN<S> { $MatN { $($field: -matrix.$field),+ } }
+        });
+        impl_operator!(<S: Float> Mul<S> for $MatN<S> {
+            fn mul(matrix, scalar) -> $MatN<S> { $MatN { $($field: matrix.$field * scalar),+ } }
+        });
+        impl_operator!(<S: Float> Div<S> for $MatN<S> {
+            fn div(matrix, scalar) -> $MatN<S> { $MatN { $($field: matrix.$field / scalar),+ } }
+        });
 
-// }
+        impl_operator!(<S: Float> Add<$MatN<S> > for $MatN<S> {
+            fn add(lhs, rhs) -> $MatN<S> { $MatN { $($field: lhs.$field + rhs.$field),+ } }
+        });
+        impl_operator!(<S: Float> Sub<$MatN<S> > for $MatN<S> {
+            fn sub(lhs, rhs) -> $MatN<S> { $MatN { $($field: lhs.$field - rhs.$field),+ } }
+        });
 
-// impl ops::Add<Mat4> for Mat4 {
-//     type Output = Mat4;
+        impl_scalar_ops!($MatN<usize> { $($field),+ });
+        impl_scalar_ops!($MatN<u8> { $($field),+ });
+        impl_scalar_ops!($MatN<u16> { $($field),+ });
+        impl_scalar_ops!($MatN<u32> { $($field),+ });
+        impl_scalar_ops!($MatN<u64> { $($field),+ });
+        impl_scalar_ops!($MatN<isize> { $($field),+ });
+        impl_scalar_ops!($MatN<i8> { $($field),+ });
+        impl_scalar_ops!($MatN<i16> { $($field),+ });
+        impl_scalar_ops!($MatN<i32> { $($field),+ });
+        impl_scalar_ops!($MatN<i64> { $($field),+ });
+        impl_scalar_ops!($MatN<f32> { $($field),+ });
+        impl_scalar_ops!($MatN<f64> { $($field),+ });
+    }
+}
 
-//     fn add(self, rhs: Mat4) -> Self::Output {
-//         Mat4 {
-//             data: [
-//                 self.data[0] + rhs.data[0],
-//                 self.data[1] + rhs.data[1],
-//                 self.data[2] + rhs.data[2],
-//                 self.data[3] + rhs.data[3],
-//                 self.data[4] + rhs.data[4],
-//                 self.data[5] + rhs.data[5],
-//                 self.data[6] + rhs.data[6],
-//                 self.data[7] + rhs.data[7],
-//                 self.data[8] + rhs.data[8],
-//                 self.data[9] + rhs.data[9],
-//                 self.data[10] + rhs.data[10],
-//                 self.data[11] + rhs.data[11],
-//                 self.data[12] + rhs.data[12],
-//                 self.data[13] + rhs.data[13],
-//                 self.data[14] + rhs.data[14],
-//                 self.data[15] + rhs.data[15],
-//             ]
-//         }
-//     }
-// }
+macro_rules! impl_scalar_ops {
+    ($MatN:ident<$S:ident> { $($field:ident),+ }) => {
+        impl_operator!(Mul<$MatN<$S>> for $S {
+            fn mul(scalar, matrix) -> $MatN<$S> { $MatN { $($field: scalar * matrix.$field),+ } }
+        });
+        impl_operator!(Div<$MatN<$S>> for $S {
+            fn div(scalar, matrix) -> $MatN<$S> { $MatN { $($field: scalar / matrix.$field),+ } }
+        });
+    };
+}
 
-// impl ops::Mul<Vec4<f32>> for Mat4 {
-//     type Output = Vec4<f32>;
+impl_matrix!(Mat2, Vec2 { x: 0, y: 1 });
+impl_matrix!(Mat3, Vec3 { x: 0, y: 1, z: 2 });
+#[rustfmt::skip]
+impl_matrix!(Mat4, Vec4 { x: 0, y: 1, z: 2, w: 3});
 
-//     fn mul(self, rhs: Vec4<f32>) -> Self::Output {
-//         &self * &rhs
-//     }
-// }
+impl<S: Float> Mul<Vec2<S>> for Mat2<S> {
+    type Output = Vec2<S>;
 
-// impl ops::Mul<&Vec4<f32>> for Mat4 {
-//     type Output = Vec4<f32>;
+    fn mul(self, rhs: Vec2<S>) -> Self::Output {
+        Vec2::new(self.row(0).dot(rhs), self.row(1).dot(rhs))
+    }
+}
 
-//     fn mul(self, rhs: &Vec4<f32>) -> Self::Output {
-//         &self * rhs
-//     }
-// }
+impl<'a, S: Float> Mul<&'a Vec2<S>> for Mat2<S> {
+    type Output = Vec2<S>;
 
-// impl ops::Mul<Vec4<f32>> for &Mat4 {
-//     type Output = Vec4<f32>;
+    fn mul(self, rhs: &'a Vec2<S>) -> Self::Output {
+        Vec2::new(self.row(0).dot(*rhs), self.row(1).dot(*rhs))
+    }
+}
 
-//     fn mul(self, rhs: Vec4<f32>) -> Self::Output {
-//         self * &rhs
-//     }
-// }
+impl<S: Float> Mul<Vec3<S>> for Mat3<S> {
+    type Output = Vec3<S>;
 
-// impl ops::Mul<&Vec4<f32>> for &Mat4 {
-//     type Output = Vec4<f32>;
+    fn mul(self, rhs: Vec3<S>) -> Self::Output {
+        Vec3::new(
+            self.row(0).dot(rhs),
+            self.row(1).dot(rhs),
+            self.row(2).dot(rhs),
+        )
+    }
+}
 
-//     fn mul(self, rhs: &Vec4<f32>) -> Self::Output {
-//         let m = &self.data;
-//         let x = rhs.x;
-//         let y = rhs.y;
-//         let z = rhs.z;
-//         let w = rhs.w;
+impl<'a, S: Float> Mul<&'a Vec3<S>> for Mat3<S> {
+    type Output = Vec3<S>;
 
-//         #[rustfmt::skip]
-//         Vec4::new(
-//             m[0] * x + m[4] * y + m[8] * z + m[12] * w,
-//             m[1] * x + m[5] * y + m[9] * z + m[13] * w,
-//             m[2] * x + m[6] * y + m[10] * z + m[14] * w,
-//             m[3] * x + m[7] * y + m[11] * z + m[15] * w,
-//         )
-//     }
-// }
+    fn mul(self, rhs: &'a Vec3<S>) -> Self::Output {
+        Vec3::new(
+            self.row(0).dot(*rhs),
+            self.row(1).dot(*rhs),
+            self.row(2).dot(*rhs),
+        )
+    }
+}
+
+impl<S: Float> Mul<Vec4<S>> for Mat4<S> {
+    type Output = Vec4<S>;
+
+    fn mul(self, rhs: Vec4<S>) -> Self::Output {
+        Vec4::new(
+            self.row(0).dot(rhs),
+            self.row(1).dot(rhs),
+            self.row(2).dot(rhs),
+            self.row(3).dot(rhs),
+        )
+    }
+}
+
+impl<'a, S: Float> Mul<&'a Vec4<S>> for Mat4<S> {
+    type Output = Vec4<S>;
+
+    fn mul(self, rhs: &'a Vec4<S>) -> Self::Output {
+        Vec4::new(
+            self.row(0).dot(*rhs),
+            self.row(1).dot(*rhs),
+            self.row(2).dot(*rhs),
+            self.row(3).dot(*rhs),
+        )
+    }
+}

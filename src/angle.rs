@@ -134,22 +134,22 @@ impl<S: Float> Angle for Rad<S> {
     }
 }
 
-impl_operator!(<S: Float>, Add<Rad<S>>, Rad<S>, {
+impl_operator!(<S: Float> Add<Rad<S>> for Rad<S> {
     fn add(lhs, rhs) -> Rad<S> { Rad(lhs.0 + rhs.0) }
 });
-impl_operator!(<S: Float>, Sub<Rad<S>>, Rad<S>, {
+impl_operator!(<S: Float> Sub<Rad<S>> for Rad<S> {
     fn sub(lhs, rhs) -> Rad<S> { Rad(lhs.0 - rhs.0) }
 });
-impl_operator!(<S: Float>, Mul<S>, Rad<S>, {
+impl_operator!(<S: Float> Mul<S> for Rad<S> {
     fn mul(lhs, rhs) -> Rad<S> { Rad(lhs.0 * rhs) }
 });
-impl_operator!(<S: Float>, Div<Rad<S>>, Rad<S>, {
+impl_operator!(<S: Float> Div<Rad<S>> for Rad<S> {
     fn div(lhs, rhs) -> S { lhs.0 / rhs.0 }
 });
-impl_operator!(<S: Float>, Div<S>, Rad<S>, {
+impl_operator!(<S: Float> Div<S> for Rad<S> {
     fn div(lhs, rhs) -> Rad<S> { Rad(lhs.0 / rhs) }
 });
-impl_operator!(<S: Float>, Rem<Rad<S>>, Rad<S>, {
+impl_operator!(<S: Float> Rem<Rad<S>> for Rad<S> {
     fn rem(lhs, rhs) -> Rad<S> { Rad(lhs.0 % rhs.0) }
 });
 
@@ -217,22 +217,22 @@ impl<S: Float> Angle for Deg<S> {
     }
 }
 
-impl_operator!(<S: Float>, Add<Deg<S>>, Deg<S>, {
+impl_operator!(<S: Float> Add<Deg<S>> for Deg<S> {
     fn add(lhs, rhs) -> Deg<S> { Deg(lhs.0 + rhs.0) }
 });
-impl_operator!(<S: Float>, Sub<Deg<S>>, Deg<S>, {
+impl_operator!(<S: Float> Sub<Deg<S>> for Deg<S> {
     fn sub(lhs, rhs) -> Deg<S> { Deg(lhs.0 - rhs.0) }
 });
-impl_operator!(<S: Float>, Mul<S>, Deg<S>, {
+impl_operator!(<S: Float> Mul<S> for Deg<S> {
     fn mul(lhs, rhs) -> Deg<S> { Deg(lhs.0 * rhs) }
 });
-impl_operator!(<S: Float>, Div<Deg<S>>, Deg<S>, {
+impl_operator!(<S: Float> Div<Deg<S>> for Deg<S> {
     fn div(lhs, rhs) -> S { lhs.0 / rhs.0 }
 });
-impl_operator!(<S: Float>, Div<S>, Deg<S>, {
+impl_operator!(<S: Float> Div<S> for Deg<S> {
     fn div(lhs, rhs) -> Deg<S> { Deg(lhs.0 / rhs) }
 });
-impl_operator!(<S: Float>, Rem<Deg<S>>, Deg<S>, {
+impl_operator!(<S: Float> Rem<Deg<S>> for Deg<S> {
     fn rem(lhs, rhs) -> Deg<S> { Deg(lhs.0 % rhs.0) }
 });
 
