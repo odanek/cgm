@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::{Angle, Float, InnerSpace, Num, One, Rad, Vec2, Vec3, Vec4, Zero};
+use crate::{Angle, Float, InnerSpace, Num, One, Rad, Vec2, Vec3, Vec4, VectorSpace, Zero};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -26,22 +26,76 @@ pub struct Mat4<S> {
     pub w: Vec4<S>,
 }
 
-pub trait Matrix {
-    type Row;
-    type Column;
-    type Transpose;
+pub trait Matrix: VectorSpace
+where
+    Self::Scalar: Float
+{
+    type Row: VectorSpace<Scalar = Self::Scalar>;
+    type Column: VectorSpace<Scalar = Self::Scalar>;
+    type Transpose: VectorSpace<Scalar = Self::Scalar>;
 
     fn row(&self, r: usize) -> Self::Row;
     fn column(&self, c: usize) -> Self::Column;
     fn transpose(&self) -> Self::Transpose;
 }
 
-impl<S: Zero + One> Mat2<S> {
-    pub const IDENTITY: Mat2<S> = Mat2::from_cols(Vec2::X, Vec2::Y);
+pub trait SquareMatrix
+where
+    Self::Scalar: Float,
+    Self: Matrix<        
+        Column = <Self as SquareMatrix>::ColumnRow,
+        Row = <Self as SquareMatrix>::ColumnRow,
+        Transpose = Self,
+    >,
+    Self: Mul<<Self as SquareMatrix>::ColumnRow, Output = <Self as SquareMatrix>::ColumnRow>,
+    Self: Mul<Self, Output = Self>,
+{
+    type ColumnRow: VectorSpace<Scalar = Self::Scalar>;
+
+    const IDENTITY: Self;
+
+    fn from_value(value: Self::Scalar) -> Self;
+
+    fn from_diagonal(diagonal: Self::ColumnRow) -> Self;
+
+    fn determinant(&self) -> Self::Scalar;
+
+    fn diagonal(&self) -> Self::ColumnRow;
+
+    // #[inline]
+    // fn trace(&self) -> Self::Scalar {
+    //     self.diagonal().sum()
+    // }
 }
 
 impl<S: Zero> Zero for Mat2<S> {
     const ZERO: Mat2<S> = Mat2::from_cols(Vec2::ZERO, Vec2::ZERO);
+}
+
+impl<S: Float> SquareMatrix for Mat2<S> {
+    type ColumnRow = Vec2<S>;
+
+    const IDENTITY: Mat2<S> = Mat2::from_cols(Vec2::X, Vec2::Y);
+
+    #[inline]
+    fn from_value(value: Self::Scalar) -> Self {
+        Mat2::new(value, S::ZERO, S::ZERO, value)
+    }
+
+    #[inline]
+    fn from_diagonal(diagonal: Self::ColumnRow) -> Self {
+        Mat2::new(diagonal.x, S::ZERO, S::ZERO, diagonal.y)
+    }
+
+    #[inline]
+    fn determinant(&self) -> Self::Scalar {
+        (self.x.x * self.y.y) - (self.x.y * self.y.x)
+    }
+
+    #[inline]
+    fn diagonal(&self) -> Self::ColumnRow {
+        Vec2::new(self.x.x, self.y.y)
+    }
 }
 
 impl<S> Mat2<S> {
@@ -81,7 +135,7 @@ impl<S: Float> Mat2<S> {
     }
 }
 
-impl<S: Num> Matrix for Mat2<S> {
+impl<S: Float> Matrix for Mat2<S> {
     type Row = Vec2<S>;
     type Column = Vec2<S>;
     type Transpose = Mat2<S>;
@@ -245,7 +299,7 @@ impl<S: Float> Mat3<S> {
     }
 }
 
-impl<S: Num> Matrix for Mat3<S> {
+impl<S: Float> Matrix for Mat3<S> {
     type Row = Vec3<S>;
     type Column = Vec3<S>;
     type Transpose = Mat3<S>;
@@ -444,7 +498,7 @@ impl<S: Float> Mat4<S> {
     }
 }
 
-impl<S: Num> Matrix for Mat4<S> {
+impl<S: Float> Matrix for Mat4<S> {
     type Row = Vec4<S>;
     type Column = Vec4<S>;
     type Transpose = Mat4<S>;
@@ -607,4 +661,16 @@ impl<'a, S: Float> Mul<&'a Vec4<S>> for Mat4<S> {
             self.row(3).dot(*rhs),
         )
     }
+}
+
+impl<S: Float> VectorSpace for Mat2<S> {
+    type Scalar = S;
+}
+
+impl<S: Float> VectorSpace for Mat3<S> {
+    type Scalar = S;
+}
+
+impl<S: Float> VectorSpace for Mat4<S> {
+    type Scalar = S;
 }
