@@ -37,6 +37,15 @@ pub struct Vec4<S> {
     pub w: S,
 }
 
+pub trait Vector {
+    type Element: Copy;
+
+    fn length() -> usize;
+    fn from_value(scalar: Self::Element) -> Self;
+    fn sum(self) -> Self::Element where Self::Element: Add<Output = Self::Element>;
+    fn product(self) -> Self::Element where Self::Element: Mul<Output = Self::Element>;
+}
+
 macro_rules! impl_vector {
     ($VecN:ident { $($field:ident),+ }, $n:expr) => {
         impl<S> $VecN<S> {
@@ -116,6 +125,30 @@ impl<S: Num> InnerSpace for Vec1<S> {
     }
 }
 
+impl<S: Num> Vector for Vec1<S> {
+    type Element = S;
+
+    #[inline]
+    fn length() -> usize {
+        1
+    }
+
+    #[inline]
+    fn from_value(scalar: Self::Element) -> Self {
+        Vec1 { x: scalar }
+    }
+
+    #[inline]
+    fn sum(self) -> S {
+        self.x
+    }
+
+    #[inline]
+    fn product(self) -> S {
+        self.x
+    }
+}
+
 impl<S: Num> InnerSpace for Vec2<S> {
     #[inline]
     fn dot(self, other: Vec2<S>) -> S {
@@ -128,6 +161,30 @@ impl<S: Num> InnerSpace for Vec2<S> {
         S: Float,
     {
         Rad::atan2(Self::perp_dot(self, other), Self::dot(self, other))
+    }
+}
+
+impl<S: Num> Vector for Vec2<S> {
+    type Element = S;
+
+    #[inline]
+    fn length() -> usize {
+        2
+    }
+
+    #[inline]
+    fn from_value(scalar: Self::Element) -> Self {
+        Vec2 { x: scalar, y: scalar }
+    }
+
+    #[inline]
+    fn sum(self) -> S {
+        self.x + self.y
+    }
+
+    #[inline]
+    fn product(self) -> S {
+        self.x * self.y
     }
 }
 
@@ -146,10 +203,58 @@ impl<S: Num> InnerSpace for Vec3<S> {
     }
 }
 
+impl<S: Num> Vector for Vec3<S> {
+    type Element = S;
+
+    #[inline]
+    fn length() -> usize {
+        3
+    }
+
+    #[inline]
+    fn from_value(scalar: Self::Element) -> Self {
+        Vec3 { x: scalar, y: scalar, z: scalar }
+    }
+
+    #[inline]
+    fn sum(self) -> S {
+        self.x + self.y + self.z
+    }
+
+    #[inline]
+    fn product(self) -> S {
+        self.x * self.y * self.z
+    }
+}
+
 impl<S: Num> InnerSpace for Vec4<S> {
     #[inline]
     fn dot(self, other: Vec4<S>) -> S {
         (self.x * other.x) + (self.y * other.y) + (self.z * other.z) + (self.w * other.w)
+    }
+}
+
+impl<S: Num> Vector for Vec4<S> {
+    type Element = S;
+
+    #[inline]
+    fn length() -> usize {
+        4
+    }
+
+    #[inline]
+    fn from_value(scalar: Self::Element) -> Self {
+        Vec4 { x: scalar, y: scalar, z: scalar, w: scalar }
+    }
+
+    #[inline]
+    fn sum(self) -> S {
+        self.x + self.y + self.z + self.w
+    }
+
+    #[inline]
+    fn product(self) -> S {
+        self.x * self.y * self.z * self.w
     }
 }
 
