@@ -42,8 +42,12 @@ pub trait Vector {
 
     fn length() -> usize;
     fn from_value(scalar: Self::Element) -> Self;
-    fn sum(self) -> Self::Element where Self::Element: Add<Output = Self::Element>;
-    fn product(self) -> Self::Element where Self::Element: Mul<Output = Self::Element>;
+    fn sum(self) -> Self::Element
+    where
+        Self::Element: Add<Output = Self::Element>;
+    fn product(self) -> Self::Element
+    where
+        Self::Element: Mul<Output = Self::Element>;
 }
 
 macro_rules! impl_vector {
@@ -174,7 +178,10 @@ impl<S: Num> Vector for Vec2<S> {
 
     #[inline]
     fn from_value(scalar: Self::Element) -> Self {
-        Vec2 { x: scalar, y: scalar }
+        Vec2 {
+            x: scalar,
+            y: scalar,
+        }
     }
 
     #[inline]
@@ -213,7 +220,11 @@ impl<S: Num> Vector for Vec3<S> {
 
     #[inline]
     fn from_value(scalar: Self::Element) -> Self {
-        Vec3 { x: scalar, y: scalar, z: scalar }
+        Vec3 {
+            x: scalar,
+            y: scalar,
+            z: scalar,
+        }
     }
 
     #[inline]
@@ -244,7 +255,12 @@ impl<S: Num> Vector for Vec4<S> {
 
     #[inline]
     fn from_value(scalar: Self::Element) -> Self {
-        Vec4 { x: scalar, y: scalar, z: scalar, w: scalar }
+        Vec4 {
+            x: scalar,
+            y: scalar,
+            z: scalar,
+            w: scalar,
+        }
     }
 
     #[inline]
