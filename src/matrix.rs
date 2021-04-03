@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use crate::{Angle, Float, InnerSpace, Num, One, Rad, Vec2, Vec3, Vec4, VectorSpace, Zero};
+use crate::{Angle, Float, InnerSpace, Rad, Vec2, Vec3, Vec4, VectorSpace, Zero};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -28,7 +28,7 @@ pub struct Mat4<S> {
 
 pub trait Matrix: VectorSpace
 where
-    Self::Scalar: Float
+    Self::Scalar: Float,
 {
     type Row: VectorSpace<Scalar = Self::Scalar>;
     type Column: VectorSpace<Scalar = Self::Scalar>;
@@ -42,7 +42,7 @@ where
 pub trait SquareMatrix
 where
     Self::Scalar: Float,
-    Self: Matrix<        
+    Self: Matrix<
         Column = <Self as SquareMatrix>::ColumnRow,
         Row = <Self as SquareMatrix>::ColumnRow,
         Transpose = Self,
@@ -62,10 +62,7 @@ where
 
     fn diagonal(&self) -> Self::ColumnRow;
 
-    // #[inline]
-    // fn trace(&self) -> Self::Scalar {
-    //     self.diagonal().sum()
-    // }
+    fn trace(&self) -> Self::Scalar;
 }
 
 impl<S: Zero> Zero for Mat2<S> {
@@ -95,6 +92,11 @@ impl<S: Float> SquareMatrix for Mat2<S> {
     #[inline]
     fn diagonal(&self) -> Self::ColumnRow {
         Vec2::new(self.x.x, self.y.y)
+    }
+
+    #[inline]
+    fn trace(&self) -> Self::Scalar {
+        self.x.x + self.y.y
     }
 }
 
@@ -176,8 +178,48 @@ impl<S: Zero> Zero for Mat3<S> {
     const ZERO: Mat3<S> = Mat3::from_cols(Vec3::ZERO, Vec3::ZERO, Vec3::ZERO);
 }
 
-impl<S: Zero + One> Mat3<S> {
-    pub const IDENTITY: Mat3<S> = Mat3::from_cols(Vec3::X, Vec3::Y, Vec3::Z);
+impl<S: Float> SquareMatrix for Mat3<S> {
+    type ColumnRow = Vec3<S>;
+
+    const IDENTITY: Mat3<S> = Mat3::from_cols(Vec3::X, Vec3::Y, Vec3::Z);
+
+    #[inline]
+    #[rustfmt::skip]
+    fn from_value(value: Self::Scalar) -> Self {
+        Mat3::new(
+            value, S::ZERO, S::ZERO,
+            S::ZERO, value, S::ZERO,
+            S::ZERO, S::ZERO, value,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    fn from_diagonal(diagonal: Self::ColumnRow) -> Self {
+        Mat3::new(
+            diagonal.x, S::ZERO, S::ZERO,
+            S::ZERO, diagonal.y, S::ZERO,
+            S::ZERO, S::ZERO, diagonal.z,
+        )
+    }
+
+    #[inline]
+    fn determinant(&self) -> Self::Scalar {
+        let da = (self.y.y * self.z.z) - (self.y.z * self.z.y);
+        let db = (self.x.y * self.z.z) - (self.x.z * self.z.y);
+        let dc = (self.x.y * self.y.z) - (self.x.z * self.y.x);
+        self.x.x * da - self.y.x * db + self.z.x * dc
+    }
+
+    #[inline]
+    fn diagonal(&self) -> Self::ColumnRow {
+        Vec3::new(self.x.x, self.y.y, self.z.z)
+    }
+
+    #[inline]
+    fn trace(&self) -> Self::Scalar {
+        self.x.x + self.y.y + self.z.z
+    }
 }
 
 impl<S> Mat3<S> {
@@ -348,8 +390,68 @@ impl<S: Zero> Zero for Mat4<S> {
     const ZERO: Mat4<S> = Mat4::from_cols(Vec4::ZERO, Vec4::ZERO, Vec4::ZERO, Vec4::ZERO);
 }
 
-impl<S: Zero + One> Mat4<S> {
-    pub const IDENTITY: Mat4<S> = Mat4::from_cols(Vec4::X, Vec4::Y, Vec4::Z, Vec4::W);
+impl<S: Float> SquareMatrix for Mat4<S> {
+    type ColumnRow = Vec4<S>;
+
+    const IDENTITY: Mat4<S> = Mat4::from_cols(Vec4::X, Vec4::Y, Vec4::Z, Vec4::W);
+
+    #[inline]
+    #[rustfmt::skip]
+    fn from_value(value: Self::Scalar) -> Self {
+        Mat4::new(
+            value, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, value, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, value, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, value,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    fn from_diagonal(diagonal: Self::ColumnRow) -> Self {
+        Mat4::new(
+            diagonal.x, S::ZERO, S::ZERO, S::ZERO,
+            S::ZERO, diagonal.y, S::ZERO, S::ZERO,
+            S::ZERO, S::ZERO, diagonal.z, S::ZERO,
+            S::ZERO, S::ZERO, S::ZERO, diagonal.w,
+        )
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    fn determinant(&self) -> Self::Scalar {
+        let mx = Mat3::new(
+            self.y.y, self.z.y, self.w.y,
+            self.y.z, self.z.z, self.w.z,
+            self.y.w, self.z.w, self.w.w,
+        );
+        let my = Mat3::new(
+            self.x.y, self.z.y, self.w.y,
+            self.x.z, self.z.z, self.w.z,
+            self.x.w, self.z.w, self.w.w,
+        );
+        let mz = Mat3::new(
+            self.x.y, self.y.y, self.w.y,
+            self.x.z, self.y.z, self.w.z,
+            self.x.w, self.y.w, self.w.w,
+        );
+        let mw = Mat3::new(
+            self.x.y, self.y.y, self.z.y,
+            self.x.z, self.y.z, self.z.z,
+            self.x.w, self.y.w, self.z.w,
+        );
+        self.x.x * mx.determinant() - self.y.x * my.determinant() + self.z.x * mz.determinant() - self.w.x * mw.determinant()
+    }
+
+    #[inline]
+    fn diagonal(&self) -> Self::ColumnRow {
+        Vec4::new(self.x.x, self.y.y, self.z.z, self.w.w)
+    }
+
+    #[inline]
+    fn trace(&self) -> Self::Scalar {
+        self.x.x + self.y.y + self.z.z + self.w.w
+    }
 }
 
 impl<S> Mat4<S> {
