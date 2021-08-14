@@ -1,4 +1,6 @@
-use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
+};
 
 use crate::{Float, Zero};
 
@@ -152,6 +154,21 @@ impl_operator!(<S: Float> Div<S> for Rad<S> {
 impl_operator!(<S: Float> Rem<Rad<S>> for Rad<S> {
     fn rem(lhs, rhs) -> Rad<S> { Rad(lhs.0 % rhs.0) }
 });
+impl_assignment_operator!(<S: Float> AddAssign<Rad<S> > for Rad<S> {
+    fn add_assign(&mut self, other) { self.0 += other.0; }
+});
+impl_assignment_operator!(<S: Float> SubAssign<Rad<S> > for Rad<S> {
+    fn sub_assign(&mut self, other) { self.0 -= other.0; }
+});
+impl_assignment_operator!(<S: Float> RemAssign<Rad<S> > for Rad<S> {
+    fn rem_assign(&mut self, other) { self.0 %= other.0; }
+});
+impl_assignment_operator!(<S: Float> MulAssign<S> for Rad<S> {
+    fn mul_assign(&mut self, scalar) { self.0 *= scalar; }
+});
+impl_assignment_operator!(<S: Float> DivAssign<S> for Rad<S> {
+    fn div_assign(&mut self, scalar) { self.0 /= scalar; }
+});
 
 impl<S: Float> Neg for Rad<S> {
     type Output = Rad<S>;
@@ -234,6 +251,21 @@ impl_operator!(<S: Float> Div<S> for Deg<S> {
 });
 impl_operator!(<S: Float> Rem<Deg<S>> for Deg<S> {
     fn rem(lhs, rhs) -> Deg<S> { Deg(lhs.0 % rhs.0) }
+});
+impl_assignment_operator!(<S: Float> AddAssign<Deg<S> > for Deg<S> {
+    fn add_assign(&mut self, other) { self.0 += other.0; }
+});
+impl_assignment_operator!(<S: Float> SubAssign<Deg<S> > for Deg<S> {
+    fn sub_assign(&mut self, other) { self.0 -= other.0; }
+});
+impl_assignment_operator!(<S: Float> RemAssign<Deg<S> > for Deg<S> {
+    fn rem_assign(&mut self, other) { self.0 %= other.0; }
+});
+impl_assignment_operator!(<S: Float> MulAssign<S> for Deg<S> {
+    fn mul_assign(&mut self, scalar) { self.0 *= scalar; }
+});
+impl_assignment_operator!(<S: Float> DivAssign<S> for Deg<S> {
+    fn div_assign(&mut self, scalar) { self.0 /= scalar; }
 });
 
 impl<S: Float> Neg for Deg<S> {

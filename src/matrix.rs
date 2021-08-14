@@ -1,4 +1,6 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
+};
 
 use crate::{Angle, Float, InnerSpace, Rad, Vec2, Vec3, Vec4, VectorSpace, Zero};
 
@@ -654,19 +656,41 @@ macro_rules! impl_matrix {
         impl_operator!(<S: Float> Neg for $MatN<S> {
             fn neg(matrix) -> $MatN<S> { $MatN { $($field: -matrix.$field),+ } }
         });
+
         impl_operator!(<S: Float> Mul<S> for $MatN<S> {
             fn mul(matrix, scalar) -> $MatN<S> { $MatN { $($field: matrix.$field * scalar),+ } }
         });
+        impl_assignment_operator!(<S: Float> MulAssign<S> for $MatN<S> {
+            fn mul_assign(&mut self, scalar) { $(self.$field *= scalar);+ }
+        });
+
         impl_operator!(<S: Float> Div<S> for $MatN<S> {
             fn div(matrix, scalar) -> $MatN<S> { $MatN { $($field: matrix.$field / scalar),+ } }
+        });
+        impl_assignment_operator!(<S: Float> DivAssign<S> for $MatN<S> {
+            fn div_assign(&mut self, scalar) { $(self.$field /= scalar);+ }
+        });
+
+        impl_operator!(<S: Float> Rem<S> for $MatN<S> {
+            fn rem(matrix, scalar) -> $MatN<S> { $MatN { $($field: matrix.$field % scalar),+ } }
+        });
+        impl_assignment_operator!(<S: Float> RemAssign<S> for $MatN<S> {
+            fn rem_assign(&mut self, scalar) { $(self.$field %= scalar);+ }
         });
 
         impl_operator!(<S: Float> Add<$MatN<S> > for $MatN<S> {
             fn add(lhs, rhs) -> $MatN<S> { $MatN { $($field: lhs.$field + rhs.$field),+ } }
         });
+        impl<S: Float> AddAssign<$MatN<S>> for $MatN<S> {
+            fn add_assign(&mut self, other: $MatN<S>) { $(self.$field += other.$field);+ }
+        }
+
         impl_operator!(<S: Float> Sub<$MatN<S> > for $MatN<S> {
             fn sub(lhs, rhs) -> $MatN<S> { $MatN { $($field: lhs.$field - rhs.$field),+ } }
         });
+        impl<S: Float> SubAssign<$MatN<S>> for $MatN<S> {
+            fn sub_assign(&mut self, other: $MatN<S>) { $(self.$field -= other.$field);+ }
+        }
 
         impl_scalar_ops!($MatN<usize> { $($field),+ });
         impl_scalar_ops!($MatN<u8> { $($field),+ });
@@ -690,6 +714,9 @@ macro_rules! impl_scalar_ops {
         });
         impl_operator!(Div<$MatN<$S>> for $S {
             fn div(scalar, matrix) -> $MatN<$S> { $MatN { $($field: scalar / matrix.$field),+ } }
+        });
+        impl_operator!(Rem<$MatN<$S>> for $S {
+            fn rem(scalar, matrix) -> $MatN<$S> { $MatN { $($field: scalar % matrix.$field),+ } }
         });
     };
 }

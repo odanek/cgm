@@ -68,7 +68,17 @@ impl<T, Rhs, Output> NumOps<Rhs, Output> for T where
 {
 }
 
-pub trait Num: Copy + Zero + One + PartialOrd + NumOps {}
+pub trait NumAssignOps<Rhs = Self>:
+    AddAssign<Rhs> + SubAssign<Rhs> + MulAssign<Rhs> + DivAssign<Rhs> + RemAssign<Rhs>
+{
+}
+
+impl<T, Rhs> NumAssignOps<Rhs> for T where
+    T: AddAssign<Rhs> + SubAssign<Rhs> + MulAssign<Rhs> + DivAssign<Rhs> + RemAssign<Rhs>
+{
+}
+
+pub trait Num: Copy + Zero + One + PartialOrd + NumOps + NumAssignOps {}
 
 impl Num for u8 {}
 impl Num for i8 {}

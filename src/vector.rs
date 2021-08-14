@@ -1,4 +1,6 @@
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
+};
 
 use crate::{
     angle::Angle,
@@ -79,18 +81,42 @@ macro_rules! impl_vector {
         impl_operator!(<S: Num> Add<$VecN<S>> for $VecN<S> {
             fn add(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field + rhs.$field),+ } }
         });
+        impl_assignment_operator!(<S: Num> AddAssign<$VecN<S> > for $VecN<S> {
+            fn add_assign(&mut self, other) { $(self.$field += other.$field);+ }
+        });
+
         impl_operator!(<S: Num> Sub<$VecN<S>> for $VecN<S> {
             fn sub(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field - rhs.$field),+ } }
         });
+        impl_assignment_operator!(<S: Num> SubAssign<$VecN<S> > for $VecN<S> {
+            fn sub_assign(&mut self, other) { $(self.$field -= other.$field);+ }
+        });
+
         impl_operator!(<S: Num> Mul<S> for $VecN<S> {
             fn mul(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field * rhs),+ } }
         });
+        impl_assignment_operator!(<S: Num> MulAssign<S> for $VecN<S> {
+            fn mul_assign(&mut self, scalar) { $(self.$field *= scalar);+ }
+        });
+
         impl_operator!(<S: Num> Div<S> for $VecN<S> {
             fn div(lhs, rhs) -> $VecN<S> { $VecN { $($field: lhs.$field / rhs),+ } }
         });
+        impl_assignment_operator!(<S: Num> DivAssign<S> for $VecN<S> {
+            fn div_assign(&mut self, scalar) { $(self.$field /= scalar);+ }
+        });
+
+        impl_operator!(<S: Num> Rem<S> for $VecN<S> {
+            fn rem(lhs, scalar) -> $VecN<S> { $VecN { $($field: lhs.$field % scalar),+ } }
+        });
+        impl_assignment_operator!(<S: Num> RemAssign<S> for $VecN<S> {
+            fn rem_assign(&mut self, scalar) { $(self.$field %= scalar);+ }
+        });
+
         impl_operator!(<S: SignedNum> Neg for $VecN<S> {
             fn neg(vec) -> $VecN<S> { $VecN { $($field: -vec.$field),+ } }
         });
+
         impl_scalar_ops!($VecN<usize> { $($field),+ });
         impl_scalar_ops!($VecN<u8> { $($field),+ });
         impl_scalar_ops!($VecN<u16> { $($field),+ });
@@ -113,6 +139,9 @@ macro_rules! impl_scalar_ops {
         });
         impl_operator!(Div<$VecN<$S>> for $S {
             fn div(scalar, vector) -> $VecN<$S> { $VecN { $($field: scalar / vector.$field),+ } }
+        });
+        impl_operator!(Rem<$VecN<$S>> for $S {
+            fn rem(scalar, vector) -> $VecN<$S> { $VecN { $($field: scalar % vector.$field),+ } }
         });
     };
 }
