@@ -65,7 +65,7 @@ where
     fn trace(&self) -> Self::Scalar;
 }
 
-impl<S: Zero> Zero for Mat2<S> {
+impl<S: Float> Zero for Mat2<S> {
     const ZERO: Mat2<S> = Mat2::from_cols(Vec2::ZERO, Vec2::ZERO);
 }
 
@@ -174,7 +174,7 @@ impl_operator!(<S: Float> Mul<Mat2<S>> for Mat2<S> {
     }
 });
 
-impl<S: Zero> Zero for Mat3<S> {
+impl<S: Float> Zero for Mat3<S> {
     const ZERO: Mat3<S> = Mat3::from_cols(Vec3::ZERO, Vec3::ZERO, Vec3::ZERO);
 }
 
@@ -386,7 +386,7 @@ impl_operator!(<S: Float> Mul<Mat3<S>> for Mat3<S> {
     }
 });
 
-impl<S: Zero> Zero for Mat4<S> {
+impl<S: Float> Zero for Mat4<S> {
     const ZERO: Mat4<S> = Mat4::from_cols(Vec4::ZERO, Vec4::ZERO, Vec4::ZERO, Vec4::ZERO);
 }
 

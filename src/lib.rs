@@ -11,7 +11,7 @@ mod space;
 mod vector;
 
 pub use angle::{Angle, Deg, Rad};
-pub use euler::{Euler};
+pub use euler::Euler;
 pub use matrix::{Mat2, Mat3, Mat4};
 pub use num::{Float, Num, One, SignedNum, Zero};
 pub use projection::{Ortho, Perspective};

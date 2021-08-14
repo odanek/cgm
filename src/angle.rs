@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
 
-use crate::{Float, Num, Zero};
+use crate::{Float, Zero};
 
 pub trait Angle
 where
@@ -88,7 +88,7 @@ where
     }
 }
 
-impl<S: Num> Zero for Rad<S> {
+impl<S: Float> Zero for Rad<S> {
     const ZERO: Self = Rad(S::ZERO);
 }
 
@@ -171,7 +171,7 @@ impl<'a, S: Float> Neg for &'a Rad<S> {
     }
 }
 
-impl<S: Num> Zero for Deg<S> {
+impl<S: Float> Zero for Deg<S> {
     const ZERO: Self = Deg(S::ZERO);
 }
 

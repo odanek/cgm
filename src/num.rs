@@ -1,7 +1,6 @@
-use std::fmt::Debug;
 use std::ops::*;
 
-pub trait Zero {
+pub trait Zero: Sized + Add<Self, Output = Self> {
     const ZERO: Self;
 }
 
@@ -26,7 +25,7 @@ impl_zero!(usize, 0usize);
 impl_zero!(f32, 0f32);
 impl_zero!(f64, 0f64);
 
-pub trait One {
+pub trait One: Sized + Mul<Self, Output = Self> {
     const ONE: Self;
 }
 
@@ -51,20 +50,25 @@ impl_one!(usize, 1usize);
 impl_one!(f32, 1f32);
 impl_one!(f64, 1f64);
 
-pub trait Num:
-    Copy
-    + Clone
-    + Debug
-    + Zero
-    + One
-    + PartialOrd
-    + Add<Self, Output = Self>
-    + Sub<Self, Output = Self>
-    + Mul<Self, Output = Self>
-    + Div<Self, Output = Self>
-    + Rem<Self, Output = Self>
+pub trait NumOps<Rhs = Self, Output = Self>:
+    Add<Rhs, Output = Output>
+    + Sub<Rhs, Output = Output>
+    + Mul<Rhs, Output = Output>
+    + Div<Rhs, Output = Output>
+    + Rem<Rhs, Output = Output>
 {
 }
+
+impl<T, Rhs, Output> NumOps<Rhs, Output> for T where
+    T: Add<Rhs, Output = Output>
+        + Sub<Rhs, Output = Output>
+        + Mul<Rhs, Output = Output>
+        + Div<Rhs, Output = Output>
+        + Rem<Rhs, Output = Output>
+{
+}
+
+pub trait Num: Copy + Zero + One + PartialOrd + NumOps {}
 
 impl Num for u8 {}
 impl Num for i8 {}

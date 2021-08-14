@@ -1,4 +1,4 @@
-use crate::{Float, One, Vec3, Zero};
+use crate::Vec3;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -19,10 +19,10 @@ impl<S> Quaternion<S> {
     }
 }
 
-impl<S: Float> Zero for Quaternion<S> {
-    const ZERO: Quaternion<S> = Quaternion::from_sv(S::ZERO, Vec3::ZERO);
-}
+// impl<S: Float> Zero for Quaternion<S> {
+//     const ZERO: Quaternion<S> = Quaternion::from_sv(S::ZERO, Vec3::ZERO);
+// }
 
-impl<S: Float> One for Quaternion<S> {
-    const ONE: Quaternion<S> = Quaternion::from_sv(S::ONE, Vec3::ZERO);
-}
+// impl<S: Float> One for Quaternion<S> {
+//     const ONE: Quaternion<S> = Quaternion::from_sv(S::ONE, Vec3::ZERO);
+// }
