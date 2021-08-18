@@ -153,6 +153,9 @@ pub trait Float: SignedNum {
     fn acos(self) -> Self;
     fn atan(self) -> Self;
     fn atan2(self, other: Self) -> Self;
+    fn sin_cos(self) -> (Self, Self);
+    fn min(self, other: Self) -> Self;
+    fn max(self, other: Self) -> Self;
 }
 
 // TODO: Macro
@@ -207,6 +210,18 @@ impl Float for f32 {
     fn atan2(self, other: Self) -> Self {
         self.atan2(other)
     }
+    #[inline]
+    fn sin_cos(self) -> (Self, Self) {
+        self.sin_cos()
+    }
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        self.min(other)
+    }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        self.max(other)
+    }
 }
 
 impl Float for f64 {
@@ -259,5 +274,17 @@ impl Float for f64 {
     #[inline]
     fn atan2(self, other: Self) -> Self {
         self.atan2(other)
+    }
+    #[inline]
+    fn sin_cos(self) -> (Self, Self) {
+        self.sin_cos()
+    }
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        self.min(other)
+    }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        self.max(other)
     }
 }

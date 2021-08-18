@@ -58,6 +58,8 @@ where
     fn atan(ratio: Self::Unitless) -> Self;
 
     fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self;
+
+    fn sin_cos(self) -> (Self::Unitless, Self::Unitless);
 }
 
 #[repr(transparent)]
@@ -133,6 +135,11 @@ impl<S: Float> Angle for Rad<S> {
     #[inline]
     fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
         Rad(a.atan2(b))
+    }
+
+    #[inline]
+    fn sin_cos(self) -> (Self::Unitless, Self::Unitless) {
+        self.0.sin_cos()
     }
 }
 
@@ -231,6 +238,11 @@ impl<S: Float> Angle for Deg<S> {
     #[inline]
     fn atan2(a: Self::Unitless, b: Self::Unitless) -> Self {
         Rad(a.atan2(b)).into()
+    }
+
+    #[inline]
+    fn sin_cos(self) -> (Self::Unitless, Self::Unitless) {
+        Rad::from(self).sin_cos()
     }
 }
 
