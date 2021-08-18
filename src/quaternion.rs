@@ -147,7 +147,8 @@ impl_assignment_operator!(<S: Float> RemAssign<S> for Quaternion<S> {
 });
 
 impl_operator!(<S: Float> Mul<Vec3<S> > for Quaternion<S> {
-    fn mul(lhs, rhs) -> Vec3<S> {{        
+    fn mul(lhs, rhs) -> Vec3<S> {{
+        #[allow(clippy::clone_on_copy)]
         let rhs = rhs.clone();
         let two = S::ONE + S::ONE;
         let tmp = lhs.v.cross(rhs) + (rhs * lhs.s);
@@ -229,7 +230,7 @@ impl<S: Float> From<Quaternion<S>> for Mat3<S> {
         let sy2 = y2 * quat.s;
         let sz2 = z2 * quat.s;
         let sx2 = x2 * quat.s;
-        
+
         Mat3::new(
             S::ONE - yy2 - zz2, xy2 + sz2, xz2 - sy2,
             xy2 - sz2, S::ONE - xx2 - zz2, yz2 + sx2,
@@ -256,7 +257,7 @@ impl<S: Float> From<Quaternion<S>> for Mat4<S> {
         let sy2 = y2 * quat.s;
         let sz2 = z2 * quat.s;
         let sx2 = x2 * quat.s;
-        
+
         Mat4::new(
             S::ONE - yy2 - zz2, xy2 + sz2, xz2 - sy2, S::ZERO,
             xy2 - sz2, S::ONE - xx2 - zz2, yz2 + sx2, S::ZERO,
