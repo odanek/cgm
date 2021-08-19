@@ -15,6 +15,6 @@ pub use euler::Euler;
 pub use matrix::{Mat2, Mat3, Mat4};
 pub use num::{Float, Num, One, SignedNum, Zero};
 pub use projection::{Ortho, Perspective};
-pub use quaternion::Quaternion;
+pub use quaternion::{Quat};
 pub use space::{InnerSpace, MetricSpace, VectorSpace};
 pub use vector::{Vec1, Vec2, Vec3, Vec4};
