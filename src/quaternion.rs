@@ -96,25 +96,6 @@ impl<S: Float> InnerSpace for Quat<S> {
     }
 }
 
-impl<A> From<Euler<A>> for Quat<A::Unitless>
-where
-    A: Angle + Into<Rad<A::Unitless>>,
-{
-    fn from(src: Euler<A>) -> Quat<A::Unitless> {
-        let half = A::Unitless::ONE / (A::Unitless::ONE + A::Unitless::ONE); // TODO
-        let (s_x, c_x) = Rad::sin_cos(src.x.into() * half);
-        let (s_y, c_y) = Rad::sin_cos(src.y.into() * half);
-        let (s_z, c_z) = Rad::sin_cos(src.z.into() * half);
-
-        Quat::new(
-            -s_x * s_y * s_z + c_x * c_y * c_z,
-            s_x * c_y * c_z + s_y * s_z * c_x,
-            -s_x * s_z * c_y + s_y * c_x * c_z,
-            s_x * s_y * c_z + s_z * c_x * c_y,
-        )
-    }
-}
-
 impl_operator!(<S: Float> Neg for Quat<S> {
     fn neg(quat) -> Quat<S> {
         Quat::from_sv(-quat.s, -quat.v)
@@ -216,6 +197,25 @@ impl_scalar_mul!(f32);
 impl_scalar_mul!(f64);
 impl_scalar_div!(f32);
 impl_scalar_div!(f64);
+
+impl<A> From<Euler<A>> for Quat<A::Unitless>
+where
+    A: Angle + Into<Rad<A::Unitless>>,
+{
+    fn from(src: Euler<A>) -> Quat<A::Unitless> {
+        let half = A::Unitless::ONE / (A::Unitless::ONE + A::Unitless::ONE); // TODO
+        let (s_x, c_x) = Rad::sin_cos(src.x.into() * half);
+        let (s_y, c_y) = Rad::sin_cos(src.y.into() * half);
+        let (s_z, c_z) = Rad::sin_cos(src.z.into() * half);
+
+        Quat::new(
+            -s_x * s_y * s_z + c_x * c_y * c_z,
+            s_x * c_y * c_z + s_y * s_z * c_x,
+            -s_x * s_z * c_y + s_y * c_x * c_z,
+            s_x * s_y * c_z + s_z * c_x * c_y,
+        )
+    }
+}
 
 impl<S: Float> From<Quat<S>> for Mat3<S> {
     #[rustfmt::skip]
