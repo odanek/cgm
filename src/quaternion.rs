@@ -31,6 +31,11 @@ impl<S: Float> Quat<S> {
         Quat::from_sv(self.s, -self.v)
     }
 
+    #[inline]
+    pub fn invert(&self) -> Quat<S> {
+        self.conjugate() / self.magnitude2()
+    }
+
     pub fn nlerp(self, mut other: Quat<S>, amount: S) -> Quat<S> {
         if self.dot(other) < S::ZERO {
             other = -other;
