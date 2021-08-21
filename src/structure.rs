@@ -73,3 +73,17 @@ where
         self * (magnitude / self.magnitude())
     }
 }
+
+pub trait ElementWise<Rhs = Self> {
+    fn add_element_wise(self, rhs: Rhs) -> Self;
+    fn sub_element_wise(self, rhs: Rhs) -> Self;
+    fn mul_element_wise(self, rhs: Rhs) -> Self;
+    fn div_element_wise(self, rhs: Rhs) -> Self;
+    fn rem_element_wise(self, rhs: Rhs) -> Self;
+
+    fn add_assign_element_wise(&mut self, rhs: Rhs);
+    fn sub_assign_element_wise(&mut self, rhs: Rhs);
+    fn mul_assign_element_wise(&mut self, rhs: Rhs);
+    fn div_assign_element_wise(&mut self, rhs: Rhs);
+    fn rem_assign_element_wise(&mut self, rhs: Rhs);
+}

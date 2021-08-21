@@ -3,10 +3,7 @@ use std::ops::{
 };
 
 use crate::{
-    angle::Angle,
-    num::{Num, SignedNum, Zero},
-    space::{InnerSpace, MetricSpace, VectorSpace},
-    Float, One, Rad,
+    Angle, ElementWise, Float, InnerSpace, MetricSpace, Num, One, Rad, SignedNum, VectorSpace, Zero,
 };
 
 #[repr(C)]
@@ -129,6 +126,34 @@ macro_rules! impl_vector {
         impl_scalar_ops!($VecN<i64> { $($field),+ });
         impl_scalar_ops!($VecN<f32> { $($field),+ });
         impl_scalar_ops!($VecN<f64> { $($field),+ });
+
+        impl<S: Num> ElementWise for $VecN<S> {
+            #[inline] fn add_element_wise(self, rhs: $VecN<S>) -> $VecN<S> { $VecN::new($(self.$field + rhs.$field),+) }
+            #[inline] fn sub_element_wise(self, rhs: $VecN<S>) -> $VecN<S> { $VecN::new($(self.$field - rhs.$field),+) }
+            #[inline] fn mul_element_wise(self, rhs: $VecN<S>) -> $VecN<S> { $VecN::new($(self.$field * rhs.$field),+) }
+            #[inline] fn div_element_wise(self, rhs: $VecN<S>) -> $VecN<S> { $VecN::new($(self.$field / rhs.$field),+) }
+            #[inline] fn rem_element_wise(self, rhs: $VecN<S>) -> $VecN<S> { $VecN::new($(self.$field % rhs.$field),+) }
+
+            #[inline] fn add_assign_element_wise(&mut self, rhs: $VecN<S>) { $(self.$field += rhs.$field);+ }
+            #[inline] fn sub_assign_element_wise(&mut self, rhs: $VecN<S>) { $(self.$field -= rhs.$field);+ }
+            #[inline] fn mul_assign_element_wise(&mut self, rhs: $VecN<S>) { $(self.$field *= rhs.$field);+ }
+            #[inline] fn div_assign_element_wise(&mut self, rhs: $VecN<S>) { $(self.$field /= rhs.$field);+ }
+            #[inline] fn rem_assign_element_wise(&mut self, rhs: $VecN<S>) { $(self.$field %= rhs.$field);+ }
+        }
+
+        impl<S: Num> ElementWise<S> for $VecN<S> {
+            #[inline] fn add_element_wise(self, rhs: S) -> $VecN<S> { $VecN::new($(self.$field + rhs),+) }
+            #[inline] fn sub_element_wise(self, rhs: S) -> $VecN<S> { $VecN::new($(self.$field - rhs),+) }
+            #[inline] fn mul_element_wise(self, rhs: S) -> $VecN<S> { $VecN::new($(self.$field * rhs),+) }
+            #[inline] fn div_element_wise(self, rhs: S) -> $VecN<S> { $VecN::new($(self.$field / rhs),+) }
+            #[inline] fn rem_element_wise(self, rhs: S) -> $VecN<S> { $VecN::new($(self.$field % rhs),+) }
+
+            #[inline] fn add_assign_element_wise(&mut self, rhs: S) { $(self.$field += rhs);+ }
+            #[inline] fn sub_assign_element_wise(&mut self, rhs: S) { $(self.$field -= rhs);+ }
+            #[inline] fn mul_assign_element_wise(&mut self, rhs: S) { $(self.$field *= rhs);+ }
+            #[inline] fn div_assign_element_wise(&mut self, rhs: S) { $(self.$field /= rhs);+ }
+            #[inline] fn rem_assign_element_wise(&mut self, rhs: S) { $(self.$field %= rhs);+ }
+        }
     }
 }
 
