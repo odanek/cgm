@@ -203,7 +203,7 @@ where
     A: Angle + Into<Rad<A::Unitless>>,
 {
     fn from(src: Euler<A>) -> Quat<A::Unitless> {
-        let half = A::Unitless::ONE / (A::Unitless::ONE + A::Unitless::ONE); // TODO
+        let half = A::Unitless::HALF;
         let (s_x, c_x) = Rad::sin_cos(src.x.into() * half);
         let (s_y, c_y) = Rad::sin_cos(src.y.into() * half);
         let (s_z, c_z) = Rad::sin_cos(src.z.into() * half);

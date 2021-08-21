@@ -59,8 +59,7 @@ where
 impl<S: Float> From<Quat<S>> for Euler<Rad<S>> {
     fn from(src: Quat<S>) -> Euler<Rad<S>> {
         let two: S = S::ONE + S::ONE;
-        let one: S = S::ONE;
-        let sig: S = one / two;
+        let sig: S = S::HALF;
 
         let (qw, qx, qy, qz) = (src.s, src.v.x, src.v.y, src.v.z);
         let (sqw, sqx, sqy, sqz) = (qw * qw, qx * qx, qy * qy, qz * qz);
@@ -82,9 +81,9 @@ impl<S: Float> From<Quat<S>> for Euler<Rad<S>> {
             }
         } else {
             Euler {
-                x: Rad::atan2(two * (-qy * qz + qx * qw), one - two * (sqx + sqy)),
+                x: Rad::atan2(two * (-qy * qz + qx * qw), S::ONE - two * (sqx + sqy)),
                 y: Rad::asin(two * (qx * qz + qy * qw)),
-                z: Rad::atan2(two * (-qx * qy + qz * qw), one - two * (sqy + sqz)),
+                z: Rad::atan2(two * (-qx * qy + qz * qw), S::ONE - two * (sqy + sqz)),
             }
         }
     }

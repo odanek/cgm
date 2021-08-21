@@ -136,6 +136,7 @@ impl SignedNum for f64 {
 }
 
 pub trait Float: SignedNum {
+    const HALF: Self;
     const RAD_FULL_TURN: Self;
     const RAD_HALF_TURN: Self;
     const DEG_FULL_TURN: Self;
@@ -160,6 +161,7 @@ pub trait Float: SignedNum {
 
 // TODO: Macro
 impl Float for f32 {
+    const HALF: Self = 0.5;
     const RAD_FULL_TURN: Self = 2.0 * std::f32::consts::PI;
     const RAD_HALF_TURN: Self = std::f32::consts::PI;
     const DEG_FULL_TURN: Self = 360.0;
@@ -225,6 +227,7 @@ impl Float for f32 {
 }
 
 impl Float for f64 {
+    const HALF: Self = 0.5;
     const RAD_FULL_TURN: Self = 2.0 * std::f64::consts::PI;
     const RAD_HALF_TURN: Self = std::f64::consts::PI;
     const DEG_FULL_TURN: Self = 360.0;

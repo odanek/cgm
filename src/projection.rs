@@ -11,7 +11,7 @@ pub struct Perspective<S> {
 impl<S: Float> From<Perspective<S>> for Mat4<S> {
     #[rustfmt::skip]
     fn from(persp: Perspective<S>) -> Mat4<S> {
-        let half_fov = persp.fovy / (S::ONE + S::ONE);
+        let half_fov = persp.fovy * S::HALF;
         let f = half_fov.cos() / half_fov.sin();
         let d = persp.far - persp.near;
 
