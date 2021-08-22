@@ -353,6 +353,14 @@ impl<S> Vec2<S> {
     pub fn truncate(self) -> Vec1<S> {
         Vec1 { x: self.x }
     }
+
+    #[inline]
+    pub fn into_tuple(&self) -> (S, S)
+    where
+        S: Copy,
+    {
+        (self.x, self.y)
+    }
 }
 
 impl<S: Zero + One> Vec2<S> {
@@ -390,6 +398,14 @@ impl<S> Vec3<S> {
             x: self.x,
             y: self.y,
         }
+    }
+
+    #[inline]
+    pub fn into_tuple(&self) -> (S, S, S)
+    where
+        S: Copy,
+    {
+        (self.x, self.y, self.z)
     }
 }
 
@@ -449,6 +465,14 @@ impl<S> Vec4<S> {
             y: self.y,
             z: self.z,
         }
+    }
+
+    #[inline]
+    pub fn into_tuple(&self) -> (S, S, S, S)
+    where
+        S: Copy,
+    {
+        (self.x, self.y, self.z, self.w)
     }
 }
 

@@ -272,6 +272,61 @@ impl<S: Float> From<Quat<S>> for Mat4<S> {
     }
 }
 
+// TODO: TryFrom?
+/// Convert rotation matrix to quaternion
+impl<S: Float> From<Mat3<S>> for Quat<S> {
+    fn from(mat: Mat3<S>) -> Self {
+        let (m00, m01, m02) = mat.x.into_tuple();
+        let (m10, m11, m12) = mat.y.into_tuple();
+        let (m20, m21, m22) = mat.z.into_tuple();
+        if m22 <= S::ZERO {
+            let dif10 = m11 - m00;
+            let omm22 = S::ONE - m22;
+            if dif10 <= S::ZERO {
+                let four_xsq = omm22 - dif10;
+                let inv4x = S::HALF / four_xsq.sqrt();
+                Self::new(
+                    four_xsq * inv4x,
+                    (m01 + m10) * inv4x,
+                    (m02 + m20) * inv4x,
+                    (m12 - m21) * inv4x,
+                )
+            } else {
+                let four_ysq = omm22 + dif10;
+                let inv4y = S::HALF / four_ysq.sqrt();
+                Self::new(
+                    (m01 + m10) * inv4y,
+                    four_ysq * inv4y,
+                    (m12 + m21) * inv4y,
+                    (m20 - m02) * inv4y,
+                )
+            }
+        } else {
+            let sum10 = m11 + m00;
+            let opm22 = S::ONE + m22;
+            if sum10 <= S::ZERO {
+                let four_zsq = opm22 - sum10;
+                let inv4z = S::HALF / four_zsq.sqrt();
+                Self::new(
+                    (m02 + m20) * inv4z,
+                    (m12 + m21) * inv4z,
+                    four_zsq * inv4z,
+                    (m01 - m10) * inv4z,
+                )
+            } else {
+                let four_wsq = opm22 + sum10;
+                let inv4w = S::HALF / four_wsq.sqrt();
+                Self::new(
+                    (m12 - m21) * inv4w,
+                    (m20 - m02) * inv4w,
+                    (m01 - m10) * inv4w,
+                    four_wsq * inv4w,
+                )
+            }
+        }
+    }
+}
+
 impl<S: Float> From<Quat<S>> for [S; 4] {
     #[inline]
     fn from(v: Quat<S>) -> Self {
