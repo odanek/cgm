@@ -93,49 +93,35 @@ impl Num for isize {}
 impl Num for f32 {}
 impl Num for f64 {}
 
-pub trait SignedNum: Num + Neg<Output = Self> {
+pub trait Signed: Num + Neg<Output = Self> {
     fn abs(self) -> Self;
+    fn signum(self) -> Self;
 }
 
-// TODO: Macro
-impl SignedNum for i8 {
-    #[inline]
-    fn abs(self) -> Self {
-        self.abs()
-    }
-}
-impl SignedNum for i16 {
-    #[inline]
-    fn abs(self) -> Self {
-        self.abs()
-    }
-}
-impl SignedNum for i32 {
-    #[inline]
-    fn abs(self) -> Self {
-        self.abs()
-    }
-}
-impl SignedNum for i64 {
-    #[inline]
-    fn abs(self) -> Self {
-        self.abs()
-    }
-}
-impl SignedNum for f32 {
-    #[inline]
-    fn abs(self) -> Self {
-        self.abs()
-    }
-}
-impl SignedNum for f64 {
-    #[inline]
-    fn abs(self) -> Self {
-        self.abs()
-    }
+macro_rules! impl_signed {
+    ($t:ty) => {
+        impl Signed for $t {
+            #[inline]
+            fn abs(self) -> Self {
+                self.abs()
+            }
+
+            #[inline]
+            fn signum(self) -> Self {
+                self.signum()
+            }
+        }
+    };
 }
 
-pub trait Float: SignedNum {
+impl_signed!(i8);
+impl_signed!(i16);
+impl_signed!(i32);
+impl_signed!(i64);
+impl_signed!(f32);
+impl_signed!(f64);
+
+pub trait Float: Signed {
     const HALF: Self;
     const RAD_FULL_TURN: Self;
     const RAD_HALF_TURN: Self;
@@ -147,6 +133,7 @@ pub trait Float: SignedNum {
     fn round(self) -> Self;
     fn trunc(self) -> Self;
     fn fract(self) -> Self;
+    fn recip(self) -> Self;
     fn sin(self) -> Self;
     fn cos(self) -> Self;
     fn tan(self) -> Self;
@@ -183,6 +170,10 @@ impl Float for f32 {
     #[inline]
     fn fract(self) -> Self {
         self.fract()
+    }
+    #[inline]
+    fn recip(self) -> Self {
+        self.recip()
     }
     #[inline]
     fn sin(self) -> Self {
@@ -249,6 +240,10 @@ impl Float for f64 {
     #[inline]
     fn fract(self) -> Self {
         self.fract()
+    }
+    #[inline]
+    fn recip(self) -> Self {
+        self.recip()
     }
     #[inline]
     fn sin(self) -> Self {

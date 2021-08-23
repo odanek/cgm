@@ -3,7 +3,7 @@ use std::ops::{
 };
 
 use crate::{
-    Angle, ElementWise, Float, InnerSpace, MetricSpace, Num, One, Rad, SignedNum, VectorSpace, Zero,
+    Angle, ElementWise, Float, InnerSpace, MetricSpace, Num, One, Rad, Signed, VectorSpace, Zero,
 };
 
 #[repr(C)]
@@ -53,8 +53,27 @@ macro_rules! impl_vector {
     ($VecN:ident { $($field:ident),+ }, $n:expr) => {
         impl<S> $VecN<S> {
             #[inline]
-            pub const fn new($($field: S),+) -> $VecN<S> {
-                $VecN { $($field),+ }
+            pub const fn new($($field: S),+) -> Self {
+                Self { $($field),+ }
+            }
+        }
+
+        impl<S: Float> $VecN<S> {
+            #[inline]
+            pub fn round(&self) -> Self {
+                Self { $($field: self.$field.round()),+ }
+            }
+            #[inline]
+            pub fn trunc(&self) -> Self {
+                Self { $($field: self.$field.trunc()),+ }
+            }
+            #[inline]
+            pub fn fract(&self) -> Self {
+                Self { $($field: self.$field.fract()),+ }
+            }
+            #[inline]
+            pub fn recip(&self) -> Self {
+                Self { $($field: self.$field.recip()),+ }
             }
         }
 
@@ -110,7 +129,7 @@ macro_rules! impl_vector {
             fn rem_assign(&mut self, scalar) { $(self.$field %= scalar);+ }
         });
 
-        impl_operator!(<S: SignedNum> Neg for $VecN<S> {
+        impl_operator!(<S: Signed> Neg for $VecN<S> {
             fn neg(vec) -> $VecN<S> { $VecN { $($field: -vec.$field),+ } }
         });
 

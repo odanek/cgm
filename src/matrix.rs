@@ -2,7 +2,7 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
 };
 
-use crate::{Angle, Float, InnerSpace, Rad, Vec2, Vec3, Vec4, VectorSpace, Zero};
+use crate::{Angle, Float, InnerSpace, Quat, Rad, Vec2, Vec3, Vec4, VectorSpace, Zero};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -170,8 +170,8 @@ impl<S: Float> Matrix for Mat2<S> {
 impl_operator!(<S: Float> Mul<Mat2<S>> for Mat2<S> {
     fn mul(lhs, rhs) -> Mat2<S> {
         Mat2::new(
-            lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)),
-            lhs.row(0).dot(rhs.column(1)), lhs.row(1).dot(rhs.column(1)),
+            lhs.row(0).dot(rhs.x), lhs.row(1).dot(rhs.x),
+            lhs.row(0).dot(rhs.y), lhs.row(1).dot(rhs.y),
         )
     }
 });
@@ -381,9 +381,9 @@ impl<S: Float> Matrix for Mat3<S> {
 impl_operator!(<S: Float> Mul<Mat3<S>> for Mat3<S> {
     fn mul(lhs, rhs) -> Mat3<S> {
         Mat3::new(
-            lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)), lhs.row(2).dot(rhs.column(0)),
-            lhs.row(0).dot(rhs.column(1)), lhs.row(1).dot(rhs.column(1)), lhs.row(2).dot(rhs.column(1)),
-            lhs.row(0).dot(rhs.column(2)), lhs.row(1).dot(rhs.column(2)), lhs.row(2).dot(rhs.column(2)),
+            lhs.row(0).dot(rhs.x), lhs.row(1).dot(rhs.x), lhs.row(2).dot(rhs.x),
+            lhs.row(0).dot(rhs.y), lhs.row(1).dot(rhs.y), lhs.row(2).dot(rhs.y),
+            lhs.row(0).dot(rhs.z), lhs.row(1).dot(rhs.z), lhs.row(2).dot(rhs.z),
         )
     }
 });
@@ -600,6 +600,46 @@ impl<S: Float> Mat4<S> {
         );
         m * Mat4::from_translation(-eye)
     }
+
+    /// Extract scale, rotation and translation from affine transformation matrix
+    pub fn to_scale_quaternion_translation(&self) -> (Vec3<S>, Quat<S>, Vec3<S>) {
+        let det = self.determinant();
+
+        let scale: Vec3<S> = Vec3::new(
+            self.x.magnitude() * det.signum(),
+            self.y.magnitude(),
+            self.z.magnitude(),
+        );
+
+        let inv_scale = scale.recip();
+
+        let rotation = Mat3::from_cols(
+            (self.x * inv_scale.x).truncate(),
+            (self.y * inv_scale.y).truncate(),
+            (self.z * inv_scale.z).truncate(),
+        )
+        .into();
+
+        let translation = self.w.truncate();
+
+        (scale, rotation, translation)
+    }
+
+    /// Create affine transformation matrix from scale, rotation and translation.
+    /// Assumes a normalized rotation quaternion
+    pub fn from_scale_quaternion_translation(
+        scale: Vec3<S>,
+        rotation: Quat<S>,
+        translation: Vec3<S>,
+    ) -> Self {
+        let rotation_matrix = Mat3::from(rotation);
+        Self::from_cols(
+            rotation_matrix.x.extend(S::ZERO) * scale.x,
+            rotation_matrix.y.extend(S::ZERO) * scale.y,
+            rotation_matrix.z.extend(S::ZERO) * scale.z,
+            translation.extend(S::ONE),
+        )
+    }
 }
 
 impl<S: Float> Matrix for Mat4<S> {
@@ -643,10 +683,10 @@ impl<S: Float> Matrix for Mat4<S> {
 impl_operator!(<S: Float> Mul<Mat4<S>> for Mat4<S> {
     fn mul(lhs, rhs) -> Mat4<S> {
         Mat4::new(
-            lhs.row(0).dot(rhs.column(0)), lhs.row(1).dot(rhs.column(0)), lhs.row(2).dot(rhs.column(0)), lhs.row(3).dot(rhs.column(0)),
-            lhs.row(0).dot(rhs.column(1)), lhs.row(1).dot(rhs.column(1)), lhs.row(2).dot(rhs.column(1)), lhs.row(3).dot(rhs.column(1)),
-            lhs.row(0).dot(rhs.column(2)), lhs.row(1).dot(rhs.column(2)), lhs.row(2).dot(rhs.column(2)), lhs.row(3).dot(rhs.column(2)),
-            lhs.row(0).dot(rhs.column(3)), lhs.row(1).dot(rhs.column(3)), lhs.row(2).dot(rhs.column(3)), lhs.row(3).dot(rhs.column(3)),
+            lhs.row(0).dot(rhs.x), lhs.row(1).dot(rhs.x), lhs.row(2).dot(rhs.x), lhs.row(3).dot(rhs.x),
+            lhs.row(0).dot(rhs.y), lhs.row(1).dot(rhs.y), lhs.row(2).dot(rhs.y), lhs.row(3).dot(rhs.y),
+            lhs.row(0).dot(rhs.z), lhs.row(1).dot(rhs.z), lhs.row(2).dot(rhs.z), lhs.row(3).dot(rhs.z),
+            lhs.row(0).dot(rhs.w), lhs.row(1).dot(rhs.w), lhs.row(2).dot(rhs.w), lhs.row(3).dot(rhs.w),
         )
     }
 });
