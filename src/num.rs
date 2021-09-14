@@ -146,143 +146,79 @@ pub trait Float: Signed {
     fn max(self, other: Self) -> Self;
 }
 
-// TODO: Macro
-impl Float for f32 {
-    const HALF: Self = 0.5;
-    const RAD_FULL_TURN: Self = 2.0 * std::f32::consts::PI;
-    const RAD_HALF_TURN: Self = std::f32::consts::PI;
-    const DEG_FULL_TURN: Self = 360.0;
-    const DEG_HALF_TURN: Self = 180.0;
-    const DEG_RAD_RATIO: Self = 180.0 / std::f32::consts::PI;
+macro_rules! impl_float {
+    ($t:ty, $pi:expr) => {
+        impl Float for $t {
+            const HALF: Self = 0.5;
+            const RAD_FULL_TURN: Self = 2.0 * $pi;
+            const RAD_HALF_TURN: Self = $pi;
+            const DEG_FULL_TURN: Self = 360.0;
+            const DEG_HALF_TURN: Self = 180.0;
+            const DEG_RAD_RATIO: Self = 180.0 / $pi;
 
-    #[inline]
-    fn sqrt(self) -> Self {
-        self.sqrt()
-    }
-    #[inline]
-    fn round(self) -> Self {
-        self.round()
-    }
-    #[inline]
-    fn trunc(self) -> Self {
-        self.trunc()
-    }
-    #[inline]
-    fn fract(self) -> Self {
-        self.fract()
-    }
-    #[inline]
-    fn recip(self) -> Self {
-        self.recip()
-    }
-    #[inline]
-    fn sin(self) -> Self {
-        self.sin()
-    }
-    #[inline]
-    fn cos(self) -> Self {
-        self.cos()
-    }
-    #[inline]
-    fn tan(self) -> Self {
-        self.tan()
-    }
-    #[inline]
-    fn asin(self) -> Self {
-        self.asin()
-    }
-    #[inline]
-    fn acos(self) -> Self {
-        self.acos()
-    }
-    #[inline]
-    fn atan(self) -> Self {
-        self.atan()
-    }
-    #[inline]
-    fn atan2(self, other: Self) -> Self {
-        self.atan2(other)
-    }
-    #[inline]
-    fn sin_cos(self) -> (Self, Self) {
-        self.sin_cos()
-    }
-    #[inline]
-    fn min(self, other: Self) -> Self {
-        self.min(other)
-    }
-    #[inline]
-    fn max(self, other: Self) -> Self {
-        self.max(other)
-    }
+            #[inline]
+            fn sqrt(self) -> Self {
+                self.sqrt()
+            }
+            #[inline]
+            fn round(self) -> Self {
+                self.round()
+            }
+            #[inline]
+            fn trunc(self) -> Self {
+                self.trunc()
+            }
+            #[inline]
+            fn fract(self) -> Self {
+                self.fract()
+            }
+            #[inline]
+            fn recip(self) -> Self {
+                self.recip()
+            }
+            #[inline]
+            fn sin(self) -> Self {
+                self.sin()
+            }
+            #[inline]
+            fn cos(self) -> Self {
+                self.cos()
+            }
+            #[inline]
+            fn tan(self) -> Self {
+                self.tan()
+            }
+            #[inline]
+            fn asin(self) -> Self {
+                self.asin()
+            }
+            #[inline]
+            fn acos(self) -> Self {
+                self.acos()
+            }
+            #[inline]
+            fn atan(self) -> Self {
+                self.atan()
+            }
+            #[inline]
+            fn atan2(self, other: Self) -> Self {
+                self.atan2(other)
+            }
+            #[inline]
+            fn sin_cos(self) -> (Self, Self) {
+                self.sin_cos()
+            }
+            #[inline]
+            fn min(self, other: Self) -> Self {
+                self.min(other)
+            }
+            #[inline]
+            fn max(self, other: Self) -> Self {
+                self.max(other)
+            }
+        }
+    };
 }
 
-impl Float for f64 {
-    const HALF: Self = 0.5;
-    const RAD_FULL_TURN: Self = 2.0 * std::f64::consts::PI;
-    const RAD_HALF_TURN: Self = std::f64::consts::PI;
-    const DEG_FULL_TURN: Self = 360.0;
-    const DEG_HALF_TURN: Self = 180.0;
-    const DEG_RAD_RATIO: Self = 180.0 / std::f64::consts::PI;
-
-    #[inline]
-    fn sqrt(self) -> Self {
-        self.sqrt()
-    }
-    #[inline]
-    fn round(self) -> Self {
-        self.round()
-    }
-    #[inline]
-    fn trunc(self) -> Self {
-        self.trunc()
-    }
-    #[inline]
-    fn fract(self) -> Self {
-        self.fract()
-    }
-    #[inline]
-    fn recip(self) -> Self {
-        self.recip()
-    }
-    #[inline]
-    fn sin(self) -> Self {
-        self.sin()
-    }
-    #[inline]
-    fn cos(self) -> Self {
-        self.cos()
-    }
-    #[inline]
-    fn tan(self) -> Self {
-        self.tan()
-    }
-    #[inline]
-    fn asin(self) -> Self {
-        self.asin()
-    }
-    #[inline]
-    fn acos(self) -> Self {
-        self.acos()
-    }
-    #[inline]
-    fn atan(self) -> Self {
-        self.atan()
-    }
-    #[inline]
-    fn atan2(self, other: Self) -> Self {
-        self.atan2(other)
-    }
-    #[inline]
-    fn sin_cos(self) -> (Self, Self) {
-        self.sin_cos()
-    }
-    #[inline]
-    fn min(self, other: Self) -> Self {
-        self.min(other)
-    }
-    #[inline]
-    fn max(self, other: Self) -> Self {
-        self.max(other)
-    }
-}
+impl_float!(f32, std::f32::consts::PI);
+impl_float!(f64, std::f64::consts::PI);
