@@ -60,6 +60,10 @@ macro_rules! impl_vector {
 
         impl<S: Float> $VecN<S> {
             #[inline]
+            pub fn abs(&self) -> Self {
+                Self { $($field: self.$field.abs()),+ }
+            }
+            #[inline]
             pub fn round(&self) -> Self {
                 Self { $($field: self.$field.round()),+ }
             }
