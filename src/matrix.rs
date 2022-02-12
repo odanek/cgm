@@ -5,14 +5,14 @@ use std::ops::{
 use crate::{Angle, Float, InnerSpace, Quat, Rad, Vec2, Vec3, Vec4, VectorSpace, Zero};
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub struct Mat2<S> {
     pub x: Vec2<S>,
     pub y: Vec2<S>,
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub struct Mat3<S> {
     pub x: Vec3<S>,
     pub y: Vec3<S>,
@@ -20,7 +20,7 @@ pub struct Mat3<S> {
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub struct Mat4<S> {
     pub x: Vec4<S>,
     pub y: Vec4<S>,
