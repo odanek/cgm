@@ -66,7 +66,7 @@ where
 
     fn trace(&self) -> Self::Scalar;
 
-    fn invert(&self) -> Option<Self>;
+    fn inverse(&self) -> Option<Self>;
 }
 
 impl<S: Float> Zero for Mat2<S> {
@@ -105,11 +105,11 @@ impl<S: Float> SquareMatrix for Mat2<S> {
 
     #[inline]
     #[rustfmt::skip]
-    fn invert(&self) -> Option<Mat2<S>> {
+    fn inverse(&self) -> Option<Mat2<S>> {
         let det = self.determinant();
         if det == S::ZERO {
             None
-        } else {            
+        } else {
             Some(Mat2::new(
                 self.y.y / det, -self.x.y / det,
                 -self.y.x / det, self.x.x / det,
@@ -239,7 +239,7 @@ impl<S: Float> SquareMatrix for Mat3<S> {
         self.x.x + self.y.y + self.z.z
     }
 
-    fn invert(&self) -> Option<Mat3<S>> {
+    fn inverse(&self) -> Option<Mat3<S>> {
         let det = self.determinant();
         if det == S::ZERO {
             None
@@ -488,7 +488,7 @@ impl<S: Float> SquareMatrix for Mat4<S> {
     }
 
     #[rustfmt::skip]
-    fn invert(&self) -> Option<Mat4<S>> {
+    fn inverse(&self) -> Option<Mat4<S>> {
         let det = self.determinant();
         if det == S::ZERO {
             None
