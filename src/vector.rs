@@ -480,13 +480,24 @@ impl<S: Num> Vec3<S> {
     }
 }
 
-impl<S> Vec4<S> {
+impl<S: Num> Vec4<S> {
     #[inline]
     pub fn truncate(self) -> Vec3<S> {
         Vec3 {
             x: self.x,
             y: self.y,
             z: self.z,
+        }
+    }
+
+    #[inline]
+    pub fn truncate_n(&self, n: isize) -> Vec3<S> {
+        match n {
+            0 => Vec3::new(self.y, self.z, self.w),
+            1 => Vec3::new(self.x, self.z, self.w),
+            2 => Vec3::new(self.x, self.y, self.w),
+            3 => Vec3::new(self.x, self.y, self.z),
+            _ => panic!("{:?} is out of range", n),
         }
     }
 

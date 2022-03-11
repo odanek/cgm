@@ -65,6 +65,8 @@ where
     fn diagonal(&self) -> Self::ColumnRow;
 
     fn trace(&self) -> Self::Scalar;
+
+    fn invert(&self) -> Option<Self>;
 }
 
 impl<S: Float> Zero for Mat2<S> {
@@ -99,6 +101,20 @@ impl<S: Float> SquareMatrix for Mat2<S> {
     #[inline]
     fn trace(&self) -> Self::Scalar {
         self.x.x + self.y.y
+    }
+
+    #[inline]
+    #[rustfmt::skip]
+    fn invert(&self) -> Option<Mat2<S>> {
+        let det = self.determinant();
+        if det == S::ZERO {
+            None
+        } else {            
+            Some(Mat2::new(
+                self.y.y / det, -self.x.y / det,
+                -self.y.x / det, self.x.x / det,
+            ))
+        }
     }
 }
 
@@ -221,6 +237,22 @@ impl<S: Float> SquareMatrix for Mat3<S> {
     #[inline]
     fn trace(&self) -> Self::Scalar {
         self.x.x + self.y.y + self.z.z
+    }
+
+    fn invert(&self) -> Option<Mat3<S>> {
+        let det = self.determinant();
+        if det == S::ZERO {
+            None
+        } else {
+            Some(
+                Mat3::from_cols(
+                    self.y.cross(self.z) / det,
+                    self.z.cross(self.x) / det,
+                    self.x.cross(self.y) / det,
+                )
+                .transpose(),
+            )
+        }
     }
 }
 
@@ -453,6 +485,47 @@ impl<S: Float> SquareMatrix for Mat4<S> {
     #[inline]
     fn trace(&self) -> Self::Scalar {
         self.x.x + self.y.y + self.z.z + self.w.w
+    }
+
+    #[rustfmt::skip]
+    fn invert(&self) -> Option<Mat4<S>> {
+        let det = self.determinant();
+        if det == S::ZERO {
+            None
+        } else {
+            let inv_det = S::ONE / det;
+            let t = self.transpose();
+            let cf = |i, j| {
+                let mat = match i {
+                    0 => {
+                        Mat3::from_cols(t.y.truncate_n(j), t.z.truncate_n(j), t.w.truncate_n(j))
+                    }
+                    1 => {
+                        Mat3::from_cols(t.x.truncate_n(j), t.z.truncate_n(j), t.w.truncate_n(j))
+                    }
+                    2 => {
+                        Mat3::from_cols(t.x.truncate_n(j), t.y.truncate_n(j), t.w.truncate_n(j))
+                    }
+                    3 => {
+                        Mat3::from_cols(t.x.truncate_n(j), t.y.truncate_n(j), t.z.truncate_n(j))
+                    }
+                    _ => panic!("out of range"),
+                };
+                let sign = if (i + j) & 1 == 1 {
+                    -S::ONE
+                } else {
+                    S::ONE
+                };
+                mat.determinant() * sign * inv_det
+            };
+
+            Some(Mat4::new(
+                cf(0, 0), cf(0, 1), cf(0, 2), cf(0, 3),
+                cf(1, 0), cf(1, 1), cf(1, 2), cf(1, 3),
+                cf(2, 0), cf(2, 1), cf(2, 2), cf(2, 3),
+                cf(3, 0), cf(3, 1), cf(3, 2), cf(3, 3),
+            ))
+        }
     }
 }
 
