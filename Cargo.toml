@@ -7,3 +7,8 @@ description = "Copmputer graphics math"
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/odanek/cgm"
+
+[dependencies]
+bytemuck = "1.8.0"
+crevice = "0.8.0"
+crevice-derive = "0.8.0"
