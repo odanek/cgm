@@ -199,6 +199,16 @@ impl_vector!(Vec2 { x, y }, 2);
 impl_vector!(Vec3 { x, y, z }, 3);
 impl_vector!(Vec4 { x, y, z, w }, 4);
 
+impl_fixed_array_conversions!(Vec1<S> { x: 0 }, 1);
+impl_fixed_array_conversions!(Vec2<S> { x: 0, y: 1 }, 2);
+impl_fixed_array_conversions!(Vec3<S> { x: 0, y: 1, z: 2 }, 3);
+impl_fixed_array_conversions!(Vec4<S> { x: 0, y: 1, z: 2, w: 3 }, 4);
+
+impl_tuple_conversions!(Vec1<S> { x }, (S,));
+impl_tuple_conversions!(Vec2<S> { x, y }, (S, S));
+impl_tuple_conversions!(Vec3<S> { x, y, z }, (S, S, S));
+impl_tuple_conversions!(Vec4<S> { x, y, z, w }, (S, S, S, S));
+
 impl<S: Num> InnerSpace for Vec1<S> {
     #[inline]
     fn dot(self, other: Vec1<S>) -> S {
@@ -351,10 +361,15 @@ impl<S: Num> Vector for Vec4<S> {
     }
 }
 
-impl<S> Vec1<S> {
+impl<S: Num> Vec1<S> {
     #[inline]
     pub fn extend(self, y: S) -> Vec2<S> {
         Vec2 { x: self.x, y }
+    }
+
+    #[inline]
+    pub fn from_slice(slice: &[S; 1]) -> Self {
+        Self { x: slice[0] }
     }
 }
 
@@ -362,7 +377,7 @@ impl<S: One> Vec1<S> {
     pub const X: Vec1<S> = Vec1 { x: S::ONE };
 }
 
-impl<S> Vec2<S> {
+impl<S: Num> Vec2<S> {
     #[inline]
     pub fn extend(self, z: S) -> Vec3<S> {
         Vec3 {
@@ -378,11 +393,11 @@ impl<S> Vec2<S> {
     }
 
     #[inline]
-    pub fn into_tuple(&self) -> (S, S)
-    where
-        S: Copy,
-    {
-        (self.x, self.y)
+    pub fn from_slice(slice: &[S; 2]) -> Self {
+        Self {
+            x: slice[0],
+            y: slice[1],
+        }
     }
 }
 
@@ -404,7 +419,7 @@ impl<S: Num> Vec2<S> {
     }
 }
 
-impl<S> Vec3<S> {
+impl<S: Num> Vec3<S> {
     #[inline]
     pub fn extend(self, w: S) -> Vec4<S> {
         Vec4 {
@@ -424,11 +439,12 @@ impl<S> Vec3<S> {
     }
 
     #[inline]
-    pub fn into_tuple(&self) -> (S, S, S)
-    where
-        S: Copy,
-    {
-        (self.x, self.y, self.z)
+    pub fn from_slice(slice: &[S; 3]) -> Self {
+        Self {
+            x: slice[0],
+            y: slice[1],
+            z: slice[2],
+        }
     }
 }
 
@@ -502,11 +518,13 @@ impl<S: Num> Vec4<S> {
     }
 
     #[inline]
-    pub fn into_tuple(&self) -> (S, S, S, S)
-    where
-        S: Copy,
-    {
-        (self.x, self.y, self.z, self.w)
+    pub fn from_slice(slice: &[S; 4]) -> Self {
+        Self {
+            x: slice[0],
+            y: slice[1],
+            z: slice[2],
+            w: slice[3],
+        }
     }
 }
 

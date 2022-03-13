@@ -125,3 +125,40 @@ macro_rules! impl_assignment_operator {
         }
     };
 }
+
+macro_rules! impl_fixed_array_conversions {
+    ($ArrayN:ident <$S:ident> { $($field:ident : $index:expr),+ }, $n:expr) => {
+        impl<$S> From<$ArrayN<$S>> for [$S; $n] {
+            #[inline]
+            fn from(v: $ArrayN<$S>) -> Self {
+                match v { $ArrayN { $($field),+ } => [$($field),+] }
+            }
+        }
+
+        impl<$S: Clone> From<[$S; $n]> for $ArrayN<$S> {
+            #[inline]
+            fn from(v: [$S; $n]) -> $ArrayN<$S> {
+                // We need to use a clone here because we can't pattern match on arrays yet
+                $ArrayN { $($field: v[$index].clone()),+ }
+            }
+        }
+    }
+}
+
+macro_rules! impl_tuple_conversions {
+    ($ArrayN:ident <$S:ident> { $($field:ident),+ }, $Tuple:ty) => {
+        impl<$S> From<$ArrayN<$S>> for $Tuple {
+            #[inline]
+            fn from(v: $ArrayN<$S>) -> Self {
+                match v { $ArrayN { $($field),+ } => ($($field),+,) }
+            }
+        }
+
+        impl<$S> From<$Tuple> for $ArrayN<$S> {
+            #[inline]
+            fn from(v: $Tuple) -> $ArrayN<$S> {
+                match v { ($($field),+,) => $ArrayN { $($field),+ } }
+            }
+        }
+    }
+}

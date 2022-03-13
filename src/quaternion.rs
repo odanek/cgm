@@ -276,9 +276,9 @@ impl<S: Float> From<Quat<S>> for Mat4<S> {
 /// Convert rotation matrix to quaternion
 impl<S: Float> From<Mat3<S>> for Quat<S> {
     fn from(mat: Mat3<S>) -> Self {
-        let (m00, m01, m02) = mat.x.into_tuple();
-        let (m10, m11, m12) = mat.y.into_tuple();
-        let (m20, m21, m22) = mat.z.into_tuple();
+        let (m00, m01, m02) = mat.x.into();
+        let (m10, m11, m12) = mat.y.into();
+        let (m20, m21, m22) = mat.z.into();
         if m22 <= S::ZERO {
             let dif10 = m11 - m00;
             let omm22 = S::ONE - m22;
