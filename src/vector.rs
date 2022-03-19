@@ -177,6 +177,11 @@ macro_rules! impl_vector {
             #[inline] fn div_assign_element_wise(&mut self, rhs: S) { $(self.$field /= rhs);+ }
             #[inline] fn rem_assign_element_wise(&mut self, rhs: S) { $(self.$field %= rhs);+ }
         }
+
+        impl<S: Num> $VecN<S> { // TODO Make this a trait and add min/max with scalar?
+            #[inline] pub fn min_element_wise(self, rhs: $VecN<S>) -> $VecN<S> { $VecN::new($(self.$field.min(rhs.$field)),+) }
+            #[inline] pub fn max_element_wise(self, rhs: $VecN<S>) -> $VecN<S> { $VecN::new($(self.$field.max(rhs.$field)),+) }
+        }
     }
 }
 

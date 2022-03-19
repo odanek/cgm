@@ -78,20 +78,59 @@ impl<T, Rhs> NumAssignOps<Rhs> for T where
 {
 }
 
-pub trait Num: Copy + Zero + One + PartialOrd + NumOps + NumAssignOps {}
+pub trait Num: Copy + Zero + One + PartialOrd + NumOps + NumAssignOps {
+    fn min(self, other: Self) -> Self;
+    fn max(self, other: Self) -> Self;
+}
 
-impl Num for u8 {}
-impl Num for i8 {}
-impl Num for u16 {}
-impl Num for i16 {}
-impl Num for u32 {}
-impl Num for i32 {}
-impl Num for u64 {}
-impl Num for i64 {}
-impl Num for usize {}
-impl Num for isize {}
-impl Num for f32 {}
-impl Num for f64 {}
+macro_rules! impl_num {
+    ($t:ty) => {
+        impl Num for $t {
+            #[inline]
+            fn min(self, other: Self) -> Self {
+                std::cmp::min(self, other)
+            }
+
+            #[inline]
+            fn max(self, other: Self) -> Self {
+                std::cmp::max(self, other)
+            }
+        }
+    };
+}
+
+impl_num!(u8);
+impl_num!(i8);
+impl_num!(u16);
+impl_num!(i16);
+impl_num!(u32);
+impl_num!(i32);
+impl_num!(u64);
+impl_num!(i64);
+impl_num!(usize);
+impl_num!(isize);
+
+impl Num for f32 {
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        self.min(other)
+    }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        self.max(other)
+    }
+}
+
+impl Num for f64 {
+    #[inline]
+    fn min(self, other: Self) -> Self {
+        self.min(other)
+    }
+    #[inline]
+    fn max(self, other: Self) -> Self {
+        self.max(other)
+    }
+}
 
 pub trait Signed: Num + Neg<Output = Self> {
     fn abs(self) -> Self;
@@ -142,8 +181,6 @@ pub trait Float: Signed {
     fn atan(self) -> Self;
     fn atan2(self, other: Self) -> Self;
     fn sin_cos(self) -> (Self, Self);
-    fn min(self, other: Self) -> Self;
-    fn max(self, other: Self) -> Self;
 }
 
 macro_rules! impl_float {
@@ -207,14 +244,6 @@ macro_rules! impl_float {
             #[inline]
             fn sin_cos(self) -> (Self, Self) {
                 self.sin_cos()
-            }
-            #[inline]
-            fn min(self, other: Self) -> Self {
-                self.min(other)
-            }
-            #[inline]
-            fn max(self, other: Self) -> Self {
-                self.max(other)
             }
         }
     };
