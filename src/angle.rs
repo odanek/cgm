@@ -66,9 +66,21 @@ where
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Deg<S>(pub S);
 
+impl<S> Deg<S> {
+    pub const fn new(value: S) -> Self {
+        Self(value)
+    }
+}
+
 #[repr(transparent)]
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Rad<S>(pub S);
+
+impl<S> Rad<S> {
+    pub const fn new(value: S) -> Self {
+        Self(value)
+    }
+}
 
 impl<S: Float> From<Rad<S>> for Deg<S>
 where
