@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[repr(C)]
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Quat<S> {
     pub s: S,
     pub v: Vec3<S>,

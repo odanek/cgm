@@ -63,7 +63,7 @@ where
 }
 
 #[repr(transparent)]
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd)]
 pub struct Deg<S>(pub S);
 
 impl<S> Deg<S> {
@@ -73,7 +73,7 @@ impl<S> Deg<S> {
 }
 
 #[repr(transparent)]
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd)]
 pub struct Rad<S>(pub S);
 
 impl<S> Rad<S> {

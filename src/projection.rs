@@ -1,6 +1,6 @@
 use crate::{Angle, Float, Mat4, Rad};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Perspective<S> {
     pub fovy: Rad<S>,
     pub aspect: S,
@@ -24,7 +24,7 @@ impl<S: Float> From<Perspective<S>> for Mat4<S> {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Ortho<S> {
     pub left: S,
     pub right: S,
