@@ -9,6 +9,6 @@ readme = "README.md"
 repository = "https://github.com/odanek/cgm"
 
 [dependencies]
-bytemuck = "1.13.1"
+bytemuck = "1.14"
 crevice = "0.13.0"
 crevice-derive = "0.10.0"
