@@ -10,5 +10,5 @@ repository = "https://github.com/odanek/cgm"
 
 [dependencies]
 bytemuck = "1.14"
-crevice = "0.14.0"
+crevice = "0.15.0"
 crevice-derive = "0.10.0"
