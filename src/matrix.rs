@@ -45,10 +45,10 @@ pub trait SquareMatrix
 where
     Self::Scalar: Float,
     Self: Matrix<
-        Column = <Self as SquareMatrix>::ColumnRow,
-        Row = <Self as SquareMatrix>::ColumnRow,
-        Transpose = Self,
-    >,
+            Column = <Self as SquareMatrix>::ColumnRow,
+            Row = <Self as SquareMatrix>::ColumnRow,
+            Transpose = Self,
+        >,
     Self: Mul<<Self as SquareMatrix>::ColumnRow, Output = <Self as SquareMatrix>::ColumnRow>,
     Self: Mul<Self, Output = Self>,
 {
