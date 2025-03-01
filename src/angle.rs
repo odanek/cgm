@@ -198,7 +198,7 @@ impl<S: Float> Neg for Rad<S> {
     }
 }
 
-impl<'a, S: Float> Neg for &'a Rad<S> {
+impl<S: Float> Neg for &Rad<S> {
     type Output = Rad<S>;
 
     #[inline]
@@ -301,7 +301,7 @@ impl<S: Float> Neg for Deg<S> {
     }
 }
 
-impl<'a, S: Float> Neg for &'a Deg<S> {
+impl<S: Float> Neg for &Deg<S> {
     type Output = Deg<S>;
 
     #[inline]
